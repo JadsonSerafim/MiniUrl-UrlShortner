@@ -1,31 +1,51 @@
 using UrlShorter.Domain.Common;
+using UrlShorter.Domain.Common.Result;
+using UrlShorter.Domain.Common.Result.Errors;
+using UrlShorter.Domain.ValueObjects;
 
 namespace UrlShorter.Domain.Entities;
 
-public class ShortenedUrl : AggregateRoot
+public class ShortenedUrl : Entity
 {
-    
-    public string OriginalUrl { get; private set; }
+    public Url OriginalUrl { get; private set; }
     public string ShortCode { get; private set; }
+    public int ClickCount { get; private set; }
+    public DateTime? ExpiresAt { get; private set; }
     
-    private ShortenedUrl(){}
+    private ShortenedUrl() {}
 
-    public ShortenedUrl(string originalUrl, string shortCode) : base()
+    private ShortenedUrl(Url originalUrl, string shortCode, DateTime? expiresAt)
     {
-        if (string.IsNullOrWhiteSpace(originalUrl))
-            throw new ArgumentException("URL original não pode ser vazia.");
-        if (!Uri.TryCreate(originalUrl, UriKind.Absolute, out _))
-            throw new ArgumentException("URL original inválida.");
-        if (string.IsNullOrWhiteSpace(shortCode))
-            throw new ArgumentException("ShortCode não pode ser vazio.");
-
         OriginalUrl = originalUrl;
         ShortCode = shortCode;
+        ClickCount = 0;
+        ExpiresAt = expiresAt;
     }
-    public void UpdateUrl(string newUrl)
+
+    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, DateTime? expiresAt = null)
     {
-        if(string.IsNullOrEmpty(newUrl)) throw new Exception("A nova Url não pode ser vazia");
+        if (string.IsNullOrWhiteSpace(shortCode))
+        {
+            return ErrorsUrl.ShortCodeEmpty;
+        }
+
+        return new ShortenedUrl(originalUrl, shortCode, expiresAt);
+    }
+
+    public Result UpdateUrl(Url newUrl)
+    {
         OriginalUrl = newUrl;
-        Update();  
+        Update();
+        return Result.Success();
+    }
+
+    public void RegisterClick()
+    {
+        ClickCount++;
+    }
+
+    public bool IsExpired()
+    {
+        return ExpiresAt.HasValue && ExpiresAt.Value < DateTime.UtcNow;
     }
 }

@@ -1,3 +1,6 @@
+using UrlShorter.Domain.Common.Result;
+using UrlShorter.Domain.Common.Result.Errors;
+
 namespace UrlShorter.Domain.ValueObjects;
 
 public sealed record Url
@@ -6,18 +9,28 @@ public sealed record Url
 
     private static readonly string[] AllowedSchemes = ["https", "http"];
 
-    public Url(string value)
+    private Url(string value) => Value = value;
+
+
+    public static Result<Url> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("A URL não pode ser vazia.");
+        {
+           return ErrorsUrl.Empty;
+        }
 
         if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
-            throw new ArgumentException($"'{value}' não é uma URL válida.");
+        {
+            return ErrorsUrl.InvalidFormat;
+        }
 
         if (!AllowedSchemes.Contains(uri.Scheme))
-            throw new ArgumentException("A URL deve usar HTTP ou HTTPS.");
+        {
+            return ErrorsUrl.HttpInvalid;
+        }
 
-        Value = value;
+       return new Url(value);
     }
+
     public static implicit operator string(Url url) => url.Value;
 }
