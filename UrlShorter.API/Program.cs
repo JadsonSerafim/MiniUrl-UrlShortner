@@ -4,7 +4,7 @@ using UrlShorter.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Camadas de Clean Architecture ---
-// builder.Services.AddApplication();
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // --- Controllers ---
