@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using UrlShorter.Domain.Interfaces;
 using UrlShorter.Infrastructure.Persistence;
 using UrlShorter.Infrastructure.Repositories;
+using UrlShorter.Infrastructure.Services;
 
 namespace UrlShorter.Infrastructure;
 
@@ -11,7 +12,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // TODO: registrar DbContext
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
@@ -22,10 +22,10 @@ public static class DependencyInjection
             options.InstanceName = "UrlShorter_";
         });
 
-        // TODO: registrar Repositórios
-        // services.AddScoped<IExampleRepository, ExampleRepository>();
 
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         
         return services;
     }

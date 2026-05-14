@@ -13,29 +13,29 @@ public class BaseRepository<T> : IBaseRepository<T> where T : Entity
         _context = context;
     }
     
-    public async Task<T> AddAsync(T entity)
+    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
-      await _context.Set<T>().AddAsync(entity);   
+      await _context.Set<T>().AddAsync(entity, cancellationToken);   
       return entity;
         
     }
 
-    public async Task<T?> GetByIdAsync(Guid id)
+    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.Set<T>().FindAsync(id);
+        return await _context.Set<T>().FindAsync(new object[] { id }, cancellationToken);
     }
 
-    public Task UpdateAsync(T entity)
+    public Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
     {
         _context.Set<T>().Update(entity);
         return Task.CompletedTask;
         
-    }
+        }
 
-    public Task DeleteAsync(T entity)
-    {
-        entity.Deactivate();
-        _context.Set<T>().Update(entity);
-        return Task.CompletedTask;
+        public Task DeleteAsync(T entity, CancellationToken cancellationToken = default)
+        {
+            entity.Deactivate();
+            _context.Set<T>().Update(entity);
+            return Task.CompletedTask;
+        }
     }
-}
