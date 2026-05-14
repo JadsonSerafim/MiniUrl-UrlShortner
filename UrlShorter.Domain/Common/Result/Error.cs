@@ -2,7 +2,7 @@ using UrlShorter.Domain.Enums;
 
 namespace UrlShorter.Domain.Common.Result;
 
-public sealed record Error(
+public record Error(
     string Code,
     string Description,
     ErrorType Type)
