@@ -11,25 +11,42 @@ public class ShortenedUrl : Entity
     public string ShortCode { get; private set; }
     public int ClickCount { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
+    public Guid? UserId { get; private set; }
     
     private ShortenedUrl() {}
 
-    private ShortenedUrl(Url originalUrl, string shortCode, DateTime? expiresAt)
+    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt)
     {
         OriginalUrl = originalUrl;
         ShortCode = shortCode;
+        UserId = userId;
         ClickCount = 0;
         ExpiresAt = expiresAt;
     }
 
-    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, DateTime? expiresAt = null)
+    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null)
     {
         if (string.IsNullOrWhiteSpace(shortCode))
         {
             return ErrorsUrl.ShortCodeEmpty;
         }
 
-        return new ShortenedUrl(originalUrl, shortCode, expiresAt);
+        // Regra de Negócio: Se for visitante (userId null), limite de 3 dias com 2 min de tolerância
+        if (userId is null)
+        {
+            var maxExpiration = DateTime.UtcNow.AddDays(3).AddMinutes(2);
+            
+            if (expiresAt is null)
+            {
+                expiresAt = DateTime.UtcNow.AddDays(1);
+            }
+            else if (expiresAt > maxExpiration)
+            {
+                return ErrorsUrl.ExpirationTooLong;
+            }
+        }
+
+        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt);
     }
 
     public Result UpdateUrl(Url newUrl)
