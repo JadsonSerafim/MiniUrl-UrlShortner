@@ -35,4 +35,8 @@ public static class ErrorsUrl
     public static readonly Error InvalidExpirationDate = Error.Validation(
         "Url.InvalidExpirationDate",
         "A data de expiração deve ser no futuro");
+
+    public static readonly Error ExpirationTooLong = Error.Validation(
+        "Url.ExpirationTooLong",
+        "Visitantes só podem criar URLs com no máximo 3 dias de validade.");
 }
