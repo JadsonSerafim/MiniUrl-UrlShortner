@@ -9,4 +9,5 @@ public class ErrorsPassword
     public static readonly Error NoUpper = Error.Validation("Password.NoUpper", "A senha deve conter pelo menos uma letra maiúscula.");
     public static readonly Error NoLower = Error.Validation("Password.NoLower", "A senha deve conter pelo menos uma letra minúscula.");
     public static readonly Error Invalid = Error.Validation("Password.Invalid", "A senha deve conter pelo menos um número, uma letra maiúscula e uma letra minúscula.");
+    public static readonly Error SpecialCharacterRequired = Error.Validation("Password.SpecialCharacterRequired", "A senha deve conter pelo menos um caractere especial.");
 }

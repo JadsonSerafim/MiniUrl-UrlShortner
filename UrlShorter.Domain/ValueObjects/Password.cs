@@ -26,11 +26,14 @@ public sealed record Password
         if (!plainTextPassword.Any(char.IsLetter))
             return ErrorsPassword.NoLetter;
             
-        if(!plainTextPassword.Any(char.IsUpper))
+        if (!plainTextPassword.Any(char.IsUpper))
             return ErrorsPassword.NoUpper;
-        
-        if(!plainTextPassword.Any(char.IsLower))
-            return ErrorsPassword.Invalid;
+
+        if (!plainTextPassword.Any(char.IsLower))
+            return ErrorsPassword.NoLower;
+
+        if (!plainTextPassword.Any(c => !char.IsLetterOrDigit(c)))
+            return ErrorsPassword.SpecialCharacterRequired;
 
         return new Password(hasher.Hash(plainTextPassword));
     }
