@@ -49,7 +49,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Creat
         await _userRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new CreateUserResponse(user.Id, user.Email.Value, user.Name);
+        return new CreateUserResponse(user.Id, user.Name, user.Email);
 
 
     }
