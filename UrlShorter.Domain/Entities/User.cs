@@ -12,7 +12,7 @@ public sealed class User : Entity
 
     public Password Password { get; private set; }
 
-    private User() { } // Necessário para o EF Core
+    private User() { }
 
     private User(Email email, string name, Password password)
     {
