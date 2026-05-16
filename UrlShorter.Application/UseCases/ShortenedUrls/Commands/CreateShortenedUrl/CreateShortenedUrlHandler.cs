@@ -34,7 +34,7 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
             shortCode = _shortCodeGenerator.Generate();
         }
 
-        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.ExpiresAt);
+        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt);
         if(shortenedUrlResult.IsFailure) return Result<string>.Failure(shortenedUrlResult.Error);
       
         await _shortenedUrlRepository.AddAsync(shortenedUrlResult.Value, cancellationToken);

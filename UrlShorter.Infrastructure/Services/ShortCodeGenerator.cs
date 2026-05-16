@@ -15,7 +15,7 @@ public class ShortCodeGenerator : IShortCodeGenerator
         return Encode(number, length);
     }
 
-    private string Encode(long number, int length)
+    private static string Encode(long number, int length)
     {
         var result = new char[length];
 

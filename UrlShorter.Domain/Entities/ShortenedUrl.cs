@@ -31,7 +31,6 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.ShortCodeEmpty;
         }
 
-        // Regra de Negócio: Se for visitante (userId null), limite de 3 dias com 2 min de tolerância
         if (userId is null)
         {
             var maxExpiration = DateTime.UtcNow.AddDays(3).AddMinutes(2);
