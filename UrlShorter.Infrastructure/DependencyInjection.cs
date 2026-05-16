@@ -18,7 +18,7 @@ public static class DependencyInjection
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = configuration.GetConnectionString("Redis");
-            
+
             options.InstanceName = "UrlShorter_";
         });
 
@@ -26,7 +26,8 @@ public static class DependencyInjection
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
-        
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
         return services;
     }
 }
