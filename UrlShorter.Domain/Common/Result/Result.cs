@@ -10,10 +10,10 @@ public class Result
     protected Result(bool isSuccess, Error error)
     {
         if (isSuccess && error != Error.None)
-            throw new InvalidOperationException("Success result cannot contain error.");
+            throw new InvalidOperationException("Operação bem sucedida não pode conter erro.");
 
         if (!isSuccess && error == Error.None)
-            throw new InvalidOperationException("Failure result must contain error.");
+            throw new InvalidOperationException("Operação falhada deve conter erro.");
 
         IsSuccess = isSuccess;
         Error = error;
