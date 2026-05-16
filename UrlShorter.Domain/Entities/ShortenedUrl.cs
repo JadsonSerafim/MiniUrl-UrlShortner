@@ -31,15 +31,16 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.ShortCodeEmpty;
         }
 
+        if (expiresAt is null)
+        {
+            expiresAt = DateTime.UtcNow.AddDays(1);
+        }
+
         if (userId is null)
         {
             var maxExpiration = DateTime.UtcNow.AddDays(3).AddMinutes(2);
-            
-            if (expiresAt is null)
-            {
-                expiresAt = DateTime.UtcNow.AddDays(1);
-            }
-            else if (expiresAt > maxExpiration)
+
+            if (expiresAt > maxExpiration)
             {
                 return ErrorsUrl.ExpirationTooLong;
             }

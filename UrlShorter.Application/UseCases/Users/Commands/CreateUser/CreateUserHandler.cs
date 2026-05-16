@@ -11,7 +11,6 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Creat
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
-
     private readonly IUserRepository _userRepository;
 
     public CreateUserHandler(IUnitOfWork unitOfWork, IPasswordHasher passwordHasher, IUserRepository userRepository)
@@ -44,13 +43,13 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Creat
 
         var userResult = User.Create(emailResult.Value, request.Name, passwordResult.Value);
         if (userResult.IsFailure) return userResult.Error;
-        
+
         var user = userResult.Value;
 
         await _userRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new CreateUserResponse(user.Id, user.Email.Value, user.Name);
+        return new CreateUserResponse(user.Id, user.Name, user.Email);
 
 
     }
