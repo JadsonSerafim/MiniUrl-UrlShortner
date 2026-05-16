@@ -12,20 +12,18 @@ public sealed record Email
 
     public static Result<Email> Create(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return ErrorsUser.EmailEmpty;
+        if (string.IsNullOrWhiteSpace(value)) return ErrorsEmail.Empty;
 
         try
         {
             var addr = new MailAddress(value);
-            if (addr.Address != value) 
-                return ErrorsUser.EmailInvalid; 
+            if (addr.Address != value) return ErrorsEmail.Invalid;
 
             return new Email(value.ToLower().Trim());
         }
         catch
         {
-            return ErrorsUser.EmailInvalid;
+            return ErrorsEmail.Invalid;
         }
     }
 
