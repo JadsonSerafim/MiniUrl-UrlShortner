@@ -43,4 +43,8 @@ public class ApiController : ControllerBase
     protected IActionResult ProcessResult<T>(Result<T> result) where T : class
     => result.IsSuccess ?
         Ok(result.Value) : HandleFailure(result);
+
+    protected IActionResult ProcessCreatedResult<T>(Result<T> result, string uri = "") where T : class
+    => result.IsSuccess ?
+        Created(uri, result.Value) : HandleFailure(result);
 }

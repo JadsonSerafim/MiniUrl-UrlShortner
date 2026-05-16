@@ -38,14 +38,6 @@ public sealed record Password
         return new Password(hasher.Hash(plainTextPassword));
     }
 
-    public static Result<Password> CreateFromHash(string hash)
-    {
-        if (string.IsNullOrWhiteSpace(hash))
-            return ErrorsUser.PasswordEmpty;
-
-        return new Password(hash);
-    }
-
     public static Result<Password> LoadFromHash(string hash)
     {
         if (string.IsNullOrWhiteSpace(hash))
