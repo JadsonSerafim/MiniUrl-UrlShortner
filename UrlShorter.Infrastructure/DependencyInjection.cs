@@ -24,6 +24,7 @@ public static class DependencyInjection
 
 
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
