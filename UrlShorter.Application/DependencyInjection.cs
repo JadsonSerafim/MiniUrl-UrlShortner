@@ -18,7 +18,12 @@ public static class DependencyInjection
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        return services;
+        var channel = System.Threading.Channels.Channel.CreateUnbounded<UseCases.ShortenedUrls.Queries.GetOriginalUrl.ClickEvent>();
+        
+        services.AddSingleton(channel);
+        services.AddSingleton(channel.Writer);
+        services.AddSingleton(channel.Reader);
 
+        return services;
     }
 }
