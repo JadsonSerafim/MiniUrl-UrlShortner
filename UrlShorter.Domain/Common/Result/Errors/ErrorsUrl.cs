@@ -39,4 +39,8 @@ public static class ErrorsUrl
     public static readonly Error ExpirationTooLong = Error.Validation(
         "Url.ExpirationTooLong",
         "Visitantes só podem criar URLs com no máximo 3 dias de validade.");
+
+    public static readonly Error ShortCodeAlreadyExists = Error.Conflict(
+        "ShortCode.AlreadyExists",
+        "Erro ao gerar ShortCode, Tente novamente.");
 }
