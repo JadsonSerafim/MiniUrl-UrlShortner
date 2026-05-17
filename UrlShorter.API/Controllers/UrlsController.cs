@@ -20,7 +20,7 @@ public class UrlsController : ApiController
         return ProcessResult(await _sender.Send(command, cancellationToken));
     }
 
-    [HttpGet("{shortCode}")]
+    [HttpGet("/{shortCode}")]
     public async Task<IActionResult> RedirectTo([FromRoute] string shortCode)
     {
         var query = new GetOriginalUrlQuery(shortCode);

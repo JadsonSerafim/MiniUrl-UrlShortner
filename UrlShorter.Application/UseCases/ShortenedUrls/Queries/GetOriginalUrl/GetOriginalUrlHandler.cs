@@ -1,4 +1,5 @@
 using MediatR;
+using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Common.Result.Errors;
 using UrlShorter.Domain.Interfaces;
@@ -10,17 +11,26 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 {
     private readonly IShortenedUrlRepository _shortenedUrlRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICacheService _cacheService;
 
-    public GetOriginalUrlHandler(IShortenedUrlRepository shortenedUrlRepository, IUnitOfWork unitOfWork)
+    public GetOriginalUrlHandler(IShortenedUrlRepository shortenedUrlRepository, IUnitOfWork unitOfWork, ICacheService cacheService)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
+        _cacheService = cacheService;
     }
 
     public async Task<Result<string>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
     {
+        var cacheUrl = await _cacheService.GetAsync(request.ShortCode, cancellationToken);
+
+        if (cacheUrl is not null)
+        {
+            return cacheUrl;
+        }
+
         var shortenedUrl = await _shortenedUrlRepository.GetByShortCodeAsync(request.ShortCode);
-        
+
         if (shortenedUrl is null)
         {
             return ErrorsUrl.NotFound;
@@ -28,8 +38,10 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 
         if (shortenedUrl.IsExpired())
         {
-            return ErrorsUrl.Expired; 
+            return ErrorsUrl.Expired;
         }
+
+        await _cacheService.SetAsync(request.ShortCode, shortenedUrl.OriginalUrl.Value, TimeSpan.FromDays(2), cancellationToken);
 
         shortenedUrl.RegisterClick();
 
