@@ -25,6 +25,7 @@ public static class DependencyInjection
             options.InstanceName = "UrlShorter_";
         });
 
+        services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
