@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UrlShorter.Application.UseCases.Users.Commands.CreateUser;
+using UrlShorter.Application.UseCases.Users.Commands.Login;
 
 namespace UrlShorter.API.Controllers;
 
@@ -21,4 +22,13 @@ public class UsersController : ApiController
 
         return ProcessCreatedResult(result);
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginCommand command)
+    {
+        var result = await _sender.Send(command);
+
+        return ProcessResult(result);
+    }
+
 }
