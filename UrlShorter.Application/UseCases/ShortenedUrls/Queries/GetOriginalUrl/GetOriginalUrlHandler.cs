@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using MediatR;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result;
@@ -12,12 +13,14 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
     private readonly IShortenedUrlRepository _shortenedUrlRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICacheService _cacheService;
+    private readonly ChannelWriter<ClickEvent> _channelWriter;
 
-    public GetOriginalUrlHandler(IShortenedUrlRepository shortenedUrlRepository, IUnitOfWork unitOfWork, ICacheService cacheService)
+    public GetOriginalUrlHandler(IShortenedUrlRepository shortenedUrlRepository, IUnitOfWork unitOfWork, ICacheService cacheService, ChannelWriter<ClickEvent> channelWriter)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _cacheService = cacheService;
+        _channelWriter = channelWriter;
     }
 
     public async Task<Result<string>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
@@ -26,6 +29,7 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 
         if (cacheUrl is not null)
         {
+            _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
             return cacheUrl;
         }
 
@@ -43,9 +47,7 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 
         await _cacheService.SetAsync(request.ShortCode, shortenedUrl.OriginalUrl.Value, TimeSpan.FromDays(2), cancellationToken);
 
-        shortenedUrl.RegisterClick();
-
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
 
         return shortenedUrl.OriginalUrl.Value;
     }
