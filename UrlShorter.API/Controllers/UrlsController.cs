@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using static System.Net.WebRequestMethods;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 
@@ -23,7 +24,9 @@ public class UrlsController : ApiController
     [HttpGet("/{shortCode}")]
     public async Task<IActionResult> RedirectTo([FromRoute] string shortCode)
     {
-        var query = new GetOriginalUrlQuery(shortCode);
+        string? ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        string? userAgent = HttpContext.Request.Headers.UserAgent.ToString();
+        var query = new GetOriginalUrlQuery(shortCode, ipAddress, userAgent);
         var result = await _sender.Send(query);
 
         return result.IsSuccess
