@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenProvider, TokenProvider>();
 
+        services.AddHostedService<ClickLogBackgroundServiceBatched>();
 
         return services;
     }
