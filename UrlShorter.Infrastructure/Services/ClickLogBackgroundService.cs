@@ -96,7 +96,6 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
             }
         }
 
-        // Processar cliques restantes na fila antes de desligar (Drain)
         var remainingClicks = DrainChannel();
         if (remainingClicks.Count > 0)
         {
