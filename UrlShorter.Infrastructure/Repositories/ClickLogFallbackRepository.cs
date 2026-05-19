@@ -9,7 +9,6 @@ public class ClickLogFallbackRepository
 {
     private readonly string _connectionString;
 
-    // Se não passarmos nada, ele cria um arquivo chamado fallback_clicks.db na raiz do projeto
     public ClickLogFallbackRepository(string connectionString = "Data Source=fallback_clicks.db")
     {
         _connectionString = connectionString;
@@ -21,7 +20,6 @@ public class ClickLogFallbackRepository
         using var connection = new SqliteConnection(_connectionString);
         connection.Open();
 
-        // SQL puro! O SQLite aceita tipos simples como TEXT e INTEGER
         const string sql = @"
             CREATE TABLE IF NOT EXISTS FallbackClicks (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +29,6 @@ public class ClickLogFallbackRepository
                 OccurredAt TEXT NOT NULL
             );";
 
-        // Aqui está a mágica do Dapper: um método de extensão que executa o SQL direto na conexão!
         connection.Execute(sql);
     }
 
@@ -40,14 +37,12 @@ public class ClickLogFallbackRepository
         using var connection = new SqliteConnection(_connectionString);
         await connection.OpenAsync();
         
-        // 1. Buscamos todos os registros
         const string selectSql = @"
             SELECT ShortCode, IpAddress, UserAgent, OccurredAt 
             FROM FallbackClicks;";
             
         var events = await connection.QueryAsync<ClickEvent>(selectSql);
         
-        // 2. Limpamos a tabela para não reprocessar
         const string deleteSql = "DELETE FROM FallbackClicks;";
         await connection.ExecuteAsync(deleteSql);
         
