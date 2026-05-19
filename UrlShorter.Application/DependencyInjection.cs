@@ -1,6 +1,8 @@
+using System.Threading.Channels;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using UrlShorter.Application.Common.Behaviors;
+using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 
 namespace UrlShorter.Application;
 
@@ -18,7 +20,15 @@ public static class DependencyInjection
             config.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
 
-        return services;
+        var channel = Channel.CreateBounded<ClickEvent>(new BoundedChannelOptions(10000)
+        {
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+        
+        services.AddSingleton(channel);
+        services.AddSingleton(channel.Writer);
+        services.AddSingleton(channel.Reader);
 
+        return services;
     }
 }

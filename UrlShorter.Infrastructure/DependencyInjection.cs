@@ -25,12 +25,16 @@ public static class DependencyInjection
             options.InstanceName = "UrlShorter_";
         });
 
+        services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenProvider, TokenProvider>();
+
+        services.AddHostedService<ClickLogBackgroundServiceBatched>();
+        services.AddSingleton<ClickLogFallbackRepository>();
 
 
         return services;
