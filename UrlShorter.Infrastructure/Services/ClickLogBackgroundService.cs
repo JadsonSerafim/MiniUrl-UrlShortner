@@ -6,6 +6,7 @@ using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 using UrlShorter.Domain.Entities;
 using UrlShorter.Domain.ValueObjects;
 using UrlShorter.Infrastructure.Persistence;
+using UrlShorter.Infrastructure.Repositories;
 
 namespace UrlShorter.Infrastructure.Services;
 
@@ -14,6 +15,7 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
     private readonly ChannelReader<ClickEvent> _channelReader;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ClickLogBackgroundServiceBatched> _logger;
+    private readonly ClickLogFallbackRepository _fallbackRepository;
 
 
     private const int BatchSize = 100;
@@ -22,15 +24,32 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
     public ClickLogBackgroundServiceBatched(
         ChannelReader<ClickEvent> channelReader,
         IServiceScopeFactory scopeFactory,
-        ILogger<ClickLogBackgroundServiceBatched> logger)
+        ILogger<ClickLogBackgroundServiceBatched> logger,
+        ClickLogFallbackRepository fallbackRepository)
     {
         _channelReader = channelReader;
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _fallbackRepository = fallbackRepository;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        try
+        {
+            var fallbackClicks = await _fallbackRepository.GetAllAndClearAsync();
+            var list = fallbackClicks.ToList();
+
+            if (list.Count > 0)
+            {
+                await ProcessBatchWithFallbackAsync(list, stoppingToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao processar cliques de fallback na inicialização.");
+        }
+
 
         var batch = new List<ClickEvent>(BatchSize);
 
@@ -38,7 +57,6 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
         {
             try
             {
-
                 var hasItems = await _channelReader.WaitToReadAsync(stoppingToken);
 
                 if (!hasItems)
@@ -51,7 +69,7 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
 
                 if (batch.Count >= BatchSize)
                 {
-                    await ProcessBatchAsync(batch, stoppingToken);
+                    await ProcessBatchWithFallbackAsync(batch, stoppingToken);
                     batch.Clear();
                     continue;
                 }
@@ -62,20 +80,14 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
 
                     if (batch.Count > 0)
                     {
-                        await ProcessBatchAsync(batch, stoppingToken);
+                        await ProcessBatchWithFallbackAsync(batch, stoppingToken);
                         batch.Clear();
                     }
                 }
             }
             catch (OperationCanceledException)
             {
-
-                if (batch.Count > 0)
-                {
-                    await ProcessBatchAsync(batch, CancellationToken.None);
-                    batch.Clear();
-                }
-                _logger.LogInformation("ClickLog Background Service (batched) finalizando...");
+                _logger.LogInformation("ClickLog Background Service (batched) cancelado. Processando cliques restantes...");
                 break;
             }
             catch (Exception ex)
@@ -84,13 +96,74 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
             }
         }
 
+        // Processar cliques restantes na fila antes de desligar (Drain)
+        var remainingClicks = DrainChannel();
+        if (remainingClicks.Count > 0)
+        {
+            batch.AddRange(remainingClicks);
+        }
+
+        if (batch.Count > 0)
+        {
+            _logger.LogInformation("Salvando {Count} cliques pendentes no banco principal ou fallback durante o desligamento...", batch.Count);
+            await ProcessBatchWithFallbackAsync(batch, CancellationToken.None);
+            batch.Clear();
+        }
+
         _logger.LogInformation("ClickLog Background Service (batched) encerrado.");
+    }
+
+    private List<ClickEvent> DrainChannel()
+    {
+        var list = new List<ClickEvent>();
+        while (_channelReader.TryRead(out var item))
+        {
+            list.Add(item);
+        }
+        return list;
+    }
+
+    private async Task ProcessBatchWithFallbackAsync(List<ClickEvent> batch, CancellationToken ct)
+    {
+        if (batch.Count == 0) return;
+
+        var savedToDb = await TrySaveToMainDatabaseAsync(batch, ct);
+        if (!savedToDb)
+        {
+            await TrySaveToFallbackAsync(batch);
+        }
+    }
+
+    private async Task<bool> TrySaveToMainDatabaseAsync(List<ClickEvent> batch, CancellationToken ct)
+    {
+        try
+        {
+            await ProcessBatchAsync(batch, ct);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro ao salvar lote de cliques no banco principal.");
+            return false;
+        }
+    }
+
+    private async Task<bool> TrySaveToFallbackAsync(List<ClickEvent> batch)
+    {
+        try
+        {
+            await _fallbackRepository.SaveRangeAsync(batch);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "FALHA CRÍTICA: Não foi possível salvar os cliques no fallback SQLite!");
+            return false;
+        }
     }
 
     private async Task ProcessBatchAsync(List<ClickEvent> batch, CancellationToken ct)
     {
-        if (batch.Count == 0) return;
-
         using var scope = _scopeFactory.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 

@@ -34,6 +34,8 @@ public static class DependencyInjection
         services.AddScoped<ITokenProvider, TokenProvider>();
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
+        services.AddSingleton<ClickLogFallbackRepository>();
+
 
         return services;
     }
