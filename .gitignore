@@ -4,3 +4,10 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .md
+.idea 
+.vscode
+graphify-out
+UrlShorter.API/appsettings.json
+AGENTS.md
+.gitignore
+GEMINI.md
