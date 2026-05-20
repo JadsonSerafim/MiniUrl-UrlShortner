@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import LinkButton from '../components/LinkButton'
 
 export function Home() {
   return (
@@ -15,18 +15,20 @@ export function Home() {
       </p>
 
       <div className="flex gap-4">
-        <Link
+        <LinkButton
           to="/register"
-          className="rounded-lg bg-primary-600 px-6 py-3 font-medium text-white hover:bg-primary-700"
+          variant='primary'
+          size='lg'
         >
           Começar agora
-        </Link>
-        <Link
+        </LinkButton>
+        <LinkButton
           to="/login"
-          className="rounded-lg border border-gray-700 px-6 py-3 font-medium text-gray-300 hover:border-gray-500 hover:text-white"
+          variant='secondary'
+          size='lg'
         >
           Entrar
-        </Link>
+        </LinkButton>
       </div>
     </section>
   )
