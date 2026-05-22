@@ -1,24 +1,49 @@
+
 export interface User {
-  id: string;
-  email: string;
-  name: string;
+  id: string
+  name: string
+  email: string
 }
 
-export interface AuthResponse {
-  token: string;
-  user: User;
+
+
+export interface LoginRequest {
+  email: string
+  password: string
 }
 
-export interface ShortenedUrl {
-  id: string;
-  originalUrl: string;
-  shortCode: string;
-  shortUrl: string;
-  createdAt: string;
-  clickCount: number;
+export interface LoginResponse {
+  name: string
+  token: {
+    token: string
+    expiresAt: string
+  }
 }
 
-export interface ClickStats {
-  totalClicks: number;
-  lastClickAt: string | null;
+export interface RegisterRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export interface RegisterResponse {
+  id: string
+  name: string
+  email: string
+}
+export interface ShortenUrlRequest {
+  originalUrl: string
+  userId?: string
+  expiresAt?: string
+}
+
+export type ShortenUrlResponse = string
+export interface UrlItem {
+  shortCode: string
+  originalUrl: string
+  createdAt: string
+}
+export interface ApiError {
+  message?: string
+  errors?: Record<string, string[]>
 }
