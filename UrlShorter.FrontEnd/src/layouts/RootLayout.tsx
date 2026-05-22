@@ -1,5 +1,6 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import LinkButton from '@/components/LinkButton'
 
 export function RootLayout() {
   const { isAuthenticated, logout, user } = useAuth()
@@ -8,16 +9,24 @@ export function RootLayout() {
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-gray-800">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-          <Link to="/" className="text-xl font-bold text-white">
+          <LinkButton
+            to="/"
+            variant='ghost'
+            size='sm'
+          >
             UrlShorter
-          </Link>
+          </LinkButton>
 
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="text-gray-300 hover:text-white">
+                <LinkButton
+                  to="/dashboard"
+                  variant='ghost'
+                  size='sm'
+                >
                   Dashboard
-                </Link>
+                </LinkButton>
                 <span className="text-sm text-gray-500">{user?.email}</span>
                 <button
                   onClick={logout}
@@ -28,15 +37,20 @@ export function RootLayout() {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-gray-300 hover:text-white">
+                <LinkButton
+                  to="/login"
+                  variant='ghost'
+                  size='sm'
+                >
                   Entrar
-                </Link>
-                <Link
+                </LinkButton>
+                <LinkButton
                   to="/register"
-                  className="rounded bg-primary-600 px-3 py-1.5 text-sm text-white hover:bg-primary-700"
+                  variant='primary'
+                  size='sm'
                 >
                   Cadastrar
-                </Link>
+                </LinkButton>
               </>
             )}
           </div>
