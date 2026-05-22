@@ -4,18 +4,20 @@ import type { User } from '../types'
 interface AuthContextType {
   user: User | null
   token: string | null
+  isAuthenticated: boolean
   login: (token: string, user: User) => void
   logout: () => void
-  isAuthenticated: boolean
 }
 
-const AuthContext = createContext<AuthContextType | null>(null)
+export const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'))
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem('token')
+  )
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user')
-    return stored ? JSON.parse(stored) : null
+    return stored ? (JSON.parse(stored) as User) : null
   })
 
   const login = useCallback((newToken: string, newUser: User) => {
@@ -33,7 +35,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
+    <AuthContext.Provider
+      value={{ user, token, isAuthenticated: !!token, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   )
