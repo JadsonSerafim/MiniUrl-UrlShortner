@@ -1,39 +1,39 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'
+import type { ReactNode } from 'react'
 
 interface LinkButtonProps {
-    to: string;
-    variant?: 'primary' | 'secondary' | 'ghost';
-    className?: string;
-    size?: 'sm' | 'md' | 'lg';
-    children: React.ReactNode;
+  to: string
+  variant?: 'primary' | 'secondary' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+  children: ReactNode
 }
 
-const variantStyles = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700',
-    secondary: 'border border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white',
-    ghost: 'text-gray-400 hover:text-white hover:bg-gray-800'
+const variantClass = {
+  primary:   'btn-primary',
+  secondary: 'btn-secondary',
+  ghost:     'btn-ghost',
 }
 
-const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-6 py-3 text-base',
-    lg: 'px-8 py-4 text-lg'
+const sizeClass = {
+  sm: 'text-sm h-9 px-4',
+  md: 'text-base h-11 px-5',
+  lg: 'text-base h-14 px-8',
 }
 
-const LinkButton = ({ to, variant = 'primary', size = 'md', children, className }: LinkButtonProps) => {
-    return (
-        <Link
-            className={`
-                rounded-lg cursor-pointer transition-all duration-200
-                ${variantStyles[variant]}
-                ${sizeStyles[size]}
-                ${className || ''}
-            `}
-            to={to}>
-            {children}
-        </Link>
-    )
+export default function LinkButton({
+  to,
+  variant = 'primary',
+  size = 'md',
+  className = '',
+  children,
+}: LinkButtonProps) {
+  return (
+    <Link
+      to={to}
+      className={`${variantClass[variant]} ${sizeClass[size]} ${className}`}
+    >
+      {children}
+    </Link>
+  )
 }
-
-export default LinkButton;
