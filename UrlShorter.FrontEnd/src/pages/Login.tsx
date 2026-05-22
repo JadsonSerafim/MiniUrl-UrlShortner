@@ -1,20 +1,35 @@
 import { useState } from 'react'
+import { AuthForm } from '../components/AuthForm'
 
 export function Login() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
 
   const handleSubmit = () => {
-      
+    // TODO Task 3: integrar POST /api/users/login
   }
 
   return (
     <AuthForm
-      title =  "Entrar"
-      buttonText = "Entrar"
+      title="Entrar"
+      buttonText="Entrar"
       fields={[
-        { name: 'email', label: 'Email', type: 'email', value: email, onChange: setEmail, placeholder: 'seu@email.com' },
-        { name: 'password', label: 'Senha', type: 'password', value: password, onChange: setPassword, placeholder: '••••••••' },
+        {
+          name: 'email',
+          label: 'Email',
+          type: 'email',
+          value: email,
+          onChange: setEmail,
+          placeholder: 'seu@email.com',
+        },
+        {
+          name: 'password',
+          label: 'Senha',
+          type: 'password',
+          value: password,
+          onChange: setPassword,
+          placeholder: '••••••••',
+        },
       ]}
       onSubmit={handleSubmit}
       footerText="Não tem conta?"
