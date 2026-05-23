@@ -8,6 +8,8 @@ import { loginUser } from '../services/auth.service'
 import { useAuth } from '../contexts/AuthContext'
 import type { ApiError } from '../types'
 
+import { extractApiError } from '../utils/errorParser'
+
 export function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -30,17 +32,7 @@ export function Login() {
     },
 
     onError: (err: AxiosError<ApiError>) => {
-      const status = err.response?.status
-
-      if (status === 401) {
-        setServerError('Email ou senha incorretos.')
-      } else if (status === 400) {
-       
-        const messages = Object.values(err.response?.data?.errors ?? {}).flat()
-        setServerError(messages[0] ?? 'Dados inválidos.')
-      } else {
-        setServerError('Algo deu errado. Tente novamente.')
-      }
+      setServerError(extractApiError(err))
     },
   })
 
