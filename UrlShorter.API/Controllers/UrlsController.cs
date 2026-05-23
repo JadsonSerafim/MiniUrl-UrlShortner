@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using static System.Net.WebRequestMethods;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
+using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetAllUserUrls;
 
 namespace UrlShorter.API.Controllers;
 
@@ -34,5 +35,10 @@ public class UrlsController : ApiController
             : HandleFailure(result);
     }
 
-
+    [HttpGet("user/{userId:guid}")]
+    public async Task<IActionResult> GetUserUrls([FromRoute] Guid userId, CancellationToken cancellationToken)
+    {
+        var query = new GetAllUserUrlsQuery(userId);
+        return ProcessResult(await _sender.Send(query, cancellationToken));
+    }
 }

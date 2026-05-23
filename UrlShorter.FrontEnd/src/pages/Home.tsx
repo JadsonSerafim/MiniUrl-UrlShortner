@@ -1,14 +1,20 @@
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import UrlShortener from '../components/UrlShortener'
 import StepCard from '../components/StepCard'
 
 export function Home() {
+  const { isAuthenticated } = useAuth()
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
+  }
+
   return (
     <section className="mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col gap-20">
       
-      {/* Hero + Encurtador Público */}
       <div className="flex flex-col items-center text-center max-w-3xl mx-auto gap-10">
         
-        {/* Headlines */}
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl sm:text-display-sm md:text-display-md text-ink font-light tracking-tight">
             Links encurtados,{' '}
@@ -21,14 +27,12 @@ export function Home() {
           </p>
         </div>
 
-        {/* Componente Encurtador Público */}
         <UrlShortener
           label="Encurte seu link gratuitamente"
           buttonText="Encurtar"
         />
       </div>
 
-      {/* Seção "Como funciona" */}
       <div className="flex flex-col gap-8">
         <h2 className="text-xl sm:text-title-lg text-ink text-center tracking-tight">
           Como funciona?
