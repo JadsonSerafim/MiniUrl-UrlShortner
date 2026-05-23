@@ -12,7 +12,7 @@ export function RootLayout() {
         <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
 
           {/* Wordmark */}
-          <LinkButton to="/" variant="ghost" className="text-primary font-semibold text-base px-0 hover:bg-transparent">
+          <LinkButton to={isAuthenticated ? "/dashboard" : "/"} variant="ghost" className="text-primary font-semibold text-base px-0 hover:bg-transparent">
             UrlShorter
           </LinkButton>
 
@@ -20,9 +20,6 @@ export function RootLayout() {
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
               <>
-                <LinkButton to="/dashboard" variant="ghost" size="sm">
-                  Dashboard
-                </LinkButton>
                 <span className="text-xs text-muted hidden sm:block">{user?.name}</span>
                 <button
                   onClick={logout}
