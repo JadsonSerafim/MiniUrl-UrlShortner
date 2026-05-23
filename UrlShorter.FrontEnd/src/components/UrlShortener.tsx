@@ -8,6 +8,8 @@ import Card from './Card'
 import Input from './Input'
 import Button from './Button'
 
+import { extractApiError } from '../utils/errorParser'
+
 interface UrlShortenerProps {
   userId?: string
   label?: string
@@ -40,9 +42,8 @@ export default function UrlShortener({
       setErrorMsg(undefined)
     },
     onError: (err: AxiosError<ApiError>) => {
-      const messages = Object.values(err.response?.data?.errors ?? {}).flat()
       setErrorMsg(
-        messages[0] ?? 'Não foi possível encurtar a URL. Verifique o link enviado.'
+        extractApiError(err, 'Não foi possível encurtar a URL. Verifique o link enviado.')
       )
     },
   })
