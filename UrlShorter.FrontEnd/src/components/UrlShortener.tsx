@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import { useClipboard } from '../hooks/useClipboard'
 import { shortenUrl } from '../services/url.service'
@@ -26,6 +26,7 @@ export default function UrlShortener({
   const [errorMsg, setErrorMsg] = useState<string | undefined>()
 
   const { copied, copy } = useClipboard()
+  const queryClient = useQueryClient()
 
   // Constrói a URL completa para redirecionamento direto no back-end
   const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
@@ -40,6 +41,9 @@ export default function UrlShortener({
     onSuccess: (code) => {
       setShortCode(code)
       setErrorMsg(undefined)
+      if (userId) {
+        queryClient.invalidateQueries({ queryKey: ['userUrls', userId] })
+      }
     },
     onError: (err: AxiosError<ApiError>) => {
       setErrorMsg(

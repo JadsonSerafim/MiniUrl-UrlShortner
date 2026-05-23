@@ -22,4 +22,13 @@ public class ShortenedUrlRepository : BaseRepository<ShortenedUrl>, IShortenedUr
     {
         return _context.ShortenedUrls.AnyAsync(x => x.ShortCode == shortCode, cancellationToken);
     }
+
+    public Task<List<ShortenedUrl>> GetAllUserUrlsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _context.ShortenedUrls
+            .AsNoTracking()
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.CreatedAt)
+            .ToListAsync(cancellationToken);
+    }
 }
