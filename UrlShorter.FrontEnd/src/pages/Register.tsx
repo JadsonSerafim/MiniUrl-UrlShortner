@@ -7,6 +7,8 @@ import { AuthForm } from '../components/AuthForm'
 import { registerUser } from '../services/auth.service'
 import type { ApiError } from '../types'
 
+import { extractApiError } from '../utils/errorParser'
+
 export function Register() {
   const navigate = useNavigate()
 
@@ -24,17 +26,7 @@ export function Register() {
     },
 
     onError: (err: AxiosError<ApiError>) => {
-      const status = err.response?.status
-
-      if (status === 409) {
-        setServerError('Este email já está em uso.')
-      } else if (status === 400) {
-        // Erros de validação do FluentValidation
-        const messages = Object.values(err.response?.data?.errors ?? {}).flat()
-        setServerError(messages[0] ?? 'Dados inválidos.')
-      } else {
-        setServerError('Algo deu errado. Tente novamente.')
-      }
+      setServerError(extractApiError(err))
     },
   })
 

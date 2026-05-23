@@ -43,7 +43,17 @@ export interface UrlItem {
   originalUrl: string
   createdAt: string
 }
-export interface ApiError {
-  message?: string
-  errors?: Record<string, string[]>
+export interface DomainError {
+  code: string
+  description: string
+  type?: number
 }
+
+export interface ApiError {
+  title?: string
+  status?: number
+  errors?: DomainError[]
+  code?: string
+  description?: string
+}
+
