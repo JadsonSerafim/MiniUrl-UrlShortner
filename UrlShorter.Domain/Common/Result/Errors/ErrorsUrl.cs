@@ -43,4 +43,8 @@ public static class ErrorsUrl
     public static readonly Error ShortCodeAlreadyExists = Error.Conflict(
         "ShortCode.AlreadyExists",
         "Erro ao gerar ShortCode, Tente novamente.");
+        
+    public static readonly Error UserUrlLimitExceeded = Error.Validation(
+    "Url.LimitExceeded",
+    "Limite de URLs atingido. Por favor, remova URLs antigas para criar novas.");
 }
