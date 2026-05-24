@@ -33,17 +33,22 @@ public class ShortenedUrlRepository : BaseRepository<ShortenedUrl>, IShortenedUr
             .ToListAsync(cancellationToken);
     }
 
-    public Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, CancellationToken cancellationToken)
-    {
-        return _context.ShortenedUrls
+public Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, CancellationToken cancellationToken)
+{
+    var urlResult = Url.Create(originalUrl);
+    if (urlResult.IsFailure) return Task.FromResult<ShortenedUrl?>(null);
+
+    var url = urlResult.Value;
+
+    return _context.ShortenedUrls
         .AsNoTracking()
-        .FirstOrDefaultAsync(x => 
+        .FirstOrDefaultAsync(x =>
             !x.UserId.HasValue &&
-            x.OriginalUrl.Value == originalUrl &&
+            x.OriginalUrl == url &&
             x.IsActive &&
-            (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > DateTime.UtcNow), 
+            (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > DateTime.UtcNow),
             cancellationToken);
-    }
+}
 
     public Task<int> CountActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
