@@ -24,7 +24,7 @@ public class ShortenedUrl : Entity
         ExpiresAt = expiresAt;
     }
 
-    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null)
+    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null, int currentUserUrlsCount = 0)
     {
         if (string.IsNullOrWhiteSpace(shortCode))
         {
@@ -38,12 +38,12 @@ public class ShortenedUrl : Entity
 
         if (userId is null)
         {
-            var maxExpiration = DateTime.UtcNow.AddDays(3).AddMinutes(2);
+            expiresAt = DateTime.UtcNow.AddDays(1).AddMinutes(2);
+        }
 
-            if (expiresAt > maxExpiration)
-            {
-                return ErrorsUrl.ExpirationTooLong;
-            }
+        if (userId is not null && currentUserUrlsCount >= 1000)
+        {
+            return ErrorsUrl.UserUrlLimitExceeded;
         }
 
         return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt);

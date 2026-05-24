@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using UrlShorter.Domain.Entities;
 using UrlShorter.Domain.Interfaces;
 using UrlShorter.Domain.Repositories;
+using UrlShorter.Domain.ValueObjects;
 using UrlShorter.Infrastructure.Persistence;
 
 namespace UrlShorter.Infrastructure.Repositories;
@@ -30,5 +31,25 @@ public class ShortenedUrlRepository : BaseRepository<ShortenedUrl>, IShortenedUr
             .Where(x => x.UserId == userId)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync(cancellationToken);
+    }
+
+    public Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, CancellationToken cancellationToken)
+    {
+        return _context.ShortenedUrls
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => 
+            !x.UserId.HasValue &&
+            x.OriginalUrl.Value == originalUrl &&
+            x.IsActive &&
+            (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > DateTime.UtcNow), 
+            cancellationToken);
+    }
+
+    public Task<int> CountActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return _context.ShortenedUrls
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && x.IsActive)
+            .CountAsync(cancellationToken);
     }
 }
