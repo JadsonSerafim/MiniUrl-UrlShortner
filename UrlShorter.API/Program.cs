@@ -24,6 +24,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -31,6 +33,8 @@ app.UseCors("CorsPolicy");
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GuestRateLimitMiddleware>();
 
 app.MapControllers();
 
