@@ -42,6 +42,8 @@ export interface UrlItem {
   shortCode: string
   originalUrl: string
   createdAt: string
+  clickCount: number
+  expiresAt?: string
 }
 export interface DomainError {
   code: string

@@ -9,28 +9,28 @@ export default {
       
       colors: {
         primary: {
-          DEFAULT: '#0052ff',   
-          active:  '#003ecc',   
+          DEFAULT: 'var(--color-primary)',   
+          active:  'var(--color-primary-active)',   
           disabled:'#a8b8cc',   
         },
 
         
-        canvas:  '#0a0b0d',     
+        canvas:  'var(--color-canvas)',     
         surface: {
-          DEFAULT:  '#16181c',  
-          soft:     '#1e2025',  
+          DEFAULT:  'var(--color-surface)',  
+          soft:     'var(--color-surface-soft)',  
         },
 
         
         hairline: {
-          DEFAULT: '#2a2d35',   
-          soft:    '#1e2025',   
+          DEFAULT: 'var(--color-hairline)',   
+          soft:    'var(--color-hairline-soft)',   
         },
 
         
-        ink:   '#ffffff',       
-        body:  '#a8acb3',       
-        muted: '#7c828a',       
+        ink:   'var(--color-ink)',       
+        body:  'var(--color-body)',       
+        muted: 'var(--color-muted)',       
       },
 
       
