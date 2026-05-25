@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -173,8 +174,31 @@ public class ClickLogBackgroundServiceBatched : BackgroundService
                 ? ipAddressResult.Value
                 : IpAddress.Create("0.0.0.0").Value;
 
-            var clickLog = ClickLog.Create(evt.ShortCode, ipAddress, evt.UserAgent);
+            var clickLog = ClickLog.Create(evt.ShortCode ?? string.Empty, ipAddress, evt.UserAgent);
             dbContext.ClickLogs.Add(clickLog);
+        }
+
+        var groups = batch
+            .Where(e => !string.IsNullOrWhiteSpace(e.ShortCode))
+            .GroupBy(e => e.ShortCode!)
+            .Select(g => new { ShortCode = g.Key, Count = g.Count() })
+            .ToList();
+
+        if (groups.Count > 0)
+        {
+            var shortCodes = groups.Select(g => g.ShortCode).ToList();
+            var shortenedUrls = await dbContext.ShortenedUrls
+                .Where(u => shortCodes.Contains(u.ShortCode))
+                .ToListAsync(ct);
+
+            foreach (var url in shortenedUrls)
+            {
+                var group = groups.First(g => g.ShortCode == url.ShortCode);
+                for (int i = 0; i < group.Count; i++)
+                {
+                    url.RegisterClick();
+                }
+            }
         }
 
         await dbContext.SaveChangesAsync(ct);
