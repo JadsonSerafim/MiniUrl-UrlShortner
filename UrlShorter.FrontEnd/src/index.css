@@ -26,6 +26,17 @@
   --transition-base:        200ms ease;
 }
 
+:root.light {
+  --color-canvas:           #f8f9fa;
+  --color-surface:          #ffffff;
+  --color-surface-soft:     #f1f3f5;
+  --color-hairline:         #e9ecef;
+  --color-hairline-soft:    #dee2e6;
+  --color-ink:              #121417;
+  --color-body:             #5c626a;
+  --color-muted:            #8c929a;
+}
+
 @layer base {
   *,
   *::before,
@@ -166,14 +177,14 @@
 
   .card {
     @apply bg-surface rounded-xl p-card;
-    border: 1px solid rgb(255 255 255 / 0.06);
+    border: 1px solid var(--color-hairline);
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
 
 
   .card-sm {
     @apply bg-surface rounded-xl p-6;
-    border: 1px solid rgb(255 255 255 / 0.06);
+    border: 1px solid var(--color-hairline);
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
 
@@ -181,7 +192,7 @@
     @apply cursor-pointer;
   }
   .card-interactive:hover {
-    border-color: rgb(255 255 255 / 0.12);
+    border-color: var(--color-primary);
     transform: translateY(-2px);
   }
 
