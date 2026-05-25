@@ -26,16 +26,45 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
         ) : (
           urls.map((item) => {
             const fullUrl = `${backendBaseUrl}/${item.shortCode}`
+            const expiresText = item.expiresAt
+              ? new Date(item.expiresAt).toLocaleDateString('pt-BR', {
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Sem expiração'
+
             return (
               <Card key={item.shortCode} compact className="card-interactive flex flex-col gap-3">
                 <div>
                   <div className="flex justify-between items-start gap-2">
-                    <span className="text-mono truncate">{item.shortCode}</span>
-                    <span className="text-xs text-muted">{item.createdAt}</span>
+                    <span className="text-mono font-medium text-ink truncate">{item.shortCode}</span>
+                    <span className="text-[10px] text-muted">{item.createdAt}</span>
                   </div>
                   <p className="text-xs text-body truncate mt-1">
                     {item.originalUrl}
                   </p>
+
+                  <div className="flex items-center gap-4 mt-3">
+                    <div className="flex items-center gap-1 text-[11px] text-muted">
+                      <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>
+                        {item.clickCount} {item.clickCount === 1 ? 'clique' : 'cliques'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-[11px] text-muted">
+                      <svg className="w-3.5 h-3.5 text-muted-foreground opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span title={item.expiresAt ? new Date(item.expiresAt).toLocaleString('pt-BR') : undefined}>
+                        {expiresText}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 border-t border-hairline/50 pt-2">

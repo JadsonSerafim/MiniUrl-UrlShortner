@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useClipboard } from '../hooks/useClipboard'
 import { shortenUrl } from '../services/url.service'
 import type { ApiError } from '../types'
@@ -8,8 +10,8 @@ import Card from './Card'
 import Input from './Input'
 import Button from './Button'
 import ExpirationSelector from './ExpirationSelector'
-
 import { extractApiError } from '../utils/errorParser'
+import { shortenUrlSchema, getExpiresAtDate, type ShortenUrlFormValues } from '../schemas/url.schema'
 
 interface UrlShortenerProps {
   userId?: string
@@ -17,18 +19,30 @@ interface UrlShortenerProps {
   buttonText?: string
 }
 
+type FormValues = ShortenUrlFormValues
+
 export default function UrlShortener({
   userId,
   label = 'Encurte seu link gratuitamente',
   buttonText = 'Encurtar',
 }: UrlShortenerProps) {
-  const [originalUrl, setOriginalUrl] = useState('')
   const [shortCode, setShortCode] = useState<string | null>(null)
+  const [submittedUrl, setSubmittedUrl] = useState<string>('')
   const [errorMsg, setErrorMsg] = useState<string | undefined>()
 
-  const [expirationType, setExpirationType] = useState<'1d' | '7d' | '30d' | '365d' | 'custom'>('30d')
-  const [customValue, setCustomValue] = useState<number | ''>(1)
-  const [customUnit, setCustomUnit] = useState<'hours' | 'days'>('days')
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(shortenUrlSchema),
+    defaultValues: {
+      originalUrl: '',
+      expirationType: '30d',
+      customValue: 1,
+      customUnit: 'days',
+    },
+  })
+
+  const expirationType = watch('expirationType')
+  const customValue = watch('customValue')
+  const customUnit = watch('customUnit')
 
   const { copied, copy } = useClipboard()
   const queryClient = useQueryClient()
@@ -36,42 +50,12 @@ export default function UrlShortener({
   const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
   const generatedShortUrl = shortCode ? `${backendBaseUrl}/${shortCode}` : ''
 
-  const getExpiresAtDate = (): string | undefined => {
-    if (!userId) return undefined
-
-    const now = new Date()
-    switch (expirationType) {
-      case '1d':
-        now.setDate(now.getDate() + 1)
-        return now.toISOString()
-      case '7d':
-        now.setDate(now.getDate() + 7)
-        return now.toISOString()
-      case '30d':
-        now.setDate(now.getDate() + 30)
-        return now.toISOString()
-      case '365d':
-        now.setDate(now.getDate() + 365)
-        return now.toISOString()
-      case 'custom':
-        const val = customValue === '' ? 1 : customValue
-        if (customUnit === 'days') {
-          now.setDate(now.getDate() + val)
-        } else {
-          now.setHours(now.getHours() + val)
-        }
-        return now.toISOString()
-      default:
-        return undefined
-    }
-  }
-
   const mutation = useMutation({
-    mutationFn: () =>
+    mutationFn: ({ url, expiresAt }: { url: string; expiresAt?: string }) =>
       shortenUrl({
-        originalUrl,
+        originalUrl: url,
         userId,
-        expiresAt: getExpiresAtDate(),
+        expiresAt,
       }),
     onSuccess: (code) => {
       setShortCode(code)
@@ -87,54 +71,61 @@ export default function UrlShortener({
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!originalUrl.trim()) return
-
-    if (userId && expirationType === 'custom' && customValue === '') {
-      setErrorMsg('O tempo de validade personalizado é obrigatório.')
-      return
-    }
-
+  const onSubmit = (data: FormValues) => {
     setShortCode(null)
     setErrorMsg(undefined)
-    mutation.mutate()
+    setSubmittedUrl(data.originalUrl)
+
+    setValue('originalUrl', data.originalUrl)
+
+    mutation.mutate({
+      url: data.originalUrl,
+      expiresAt: getExpiresAtDate(data, userId),
+    })
   }
 
   return (
     <div className="w-full flex flex-col gap-6">
       <Card className="w-full text-left">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row items-end gap-3">
-            <div className="flex-1 w-full">
-              <Input
-                label={label}
-                type="url"
-                placeholder="https://exemplo.com/sua-url-gigante-aqui"
-                value={originalUrl}
-                onChange={(e) => setOriginalUrl(e.target.value)}
-                required
-              />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col sm:flex-row items-end gap-3">
+              <div className="flex-1 w-full">
+                <Input
+                  label={label}
+                  placeholder="https://exemplo.com/sua-url-gigante-aqui"
+                  error={errors.originalUrl?.message}
+                  hideErrorText={true}
+                  {...register('originalUrl')}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                variant="primary"
+                loading={mutation.isPending}
+                className="w-full sm:w-auto h-12 px-6"
+              >
+                {buttonText}
+              </Button>
             </div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              loading={mutation.isPending}
-              className="w-full sm:w-auto h-12 px-6"
-            >
-              {buttonText}
-            </Button>
+            {errors.originalUrl?.message && (
+              <p className="text-xs text-red-400 animate-fade-in px-1" role="alert">
+                {errors.originalUrl.message}
+              </p>
+            )}
           </div>
 
           {userId && (
             <ExpirationSelector
               value={expirationType}
-              onChange={setExpirationType}
+              onChange={(val) => setValue('expirationType', val)}
               customValue={customValue}
-              onChangeCustomValue={setCustomValue}
+              onChangeCustomValue={(val) => setValue('customValue', val)}
               customUnit={customUnit}
-              onChangeCustomUnit={setCustomUnit}
+              onChangeCustomUnit={(val) => setValue('customUnit', val)}
+              error={errors.customValue?.message}
             />
           )}
         </form>
@@ -173,12 +164,12 @@ export default function UrlShortener({
               <span className="truncate">
                 Destino:{' '}
                 <a
-                  href={originalUrl}
+                  href={submittedUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="underline hover:text-body"
                 >
-                  {originalUrl}
+                  {submittedUrl}
                 </a>
               </span>
               <a
