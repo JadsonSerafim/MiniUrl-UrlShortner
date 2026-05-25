@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext'
 import UrlShortener from '../components/UrlShortener'
 import RecentLinksList from '../components/RecentLinksList'
+import Card from '../components/Card'
 import { getUserUrls } from '../services/url.service'
 
 export function Dashboard() {
@@ -34,7 +35,17 @@ export function Dashboard() {
           />
         </div>
 
-        <div>
+        <div className="flex flex-col gap-6">
+          <Card className="border border-white/5 bg-surface/30 p-5 flex flex-col gap-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-ink flex items-center gap-1.5">
+              <span>Sua Conta</span>
+              <span className="text-primary font-normal text-[10px] bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">Ativa</span>
+            </h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Seus links podem durar até um ano e você possui um limite de até 1.000 URLs ativas.
+            </p>
+          </Card>
+
           {isLoading ? (
             <div className="flex flex-col gap-4">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted px-1">
