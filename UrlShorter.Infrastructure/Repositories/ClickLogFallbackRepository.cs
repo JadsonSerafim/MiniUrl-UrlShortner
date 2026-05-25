@@ -41,12 +41,12 @@ public class ClickLogFallbackRepository
             SELECT ShortCode, IpAddress, UserAgent, OccurredAt 
             FROM FallbackClicks;";
             
-        var events = await connection.QueryAsync<ClickEvent>(selectSql);
+        var clickDtos = await connection.QueryAsync<FallbackClickDto>(selectSql);
         
         const string deleteSql = "DELETE FROM FallbackClicks;";
         await connection.ExecuteAsync(deleteSql);
         
-        return events;
+        return clickDtos.Select(d => new ClickEvent(d.ShortCode, d.IpAddress, d.UserAgent, d.OccurredAt));
     }
 
     public async Task SaveRangeAsync(IEnumerable<ClickEvent> events)
