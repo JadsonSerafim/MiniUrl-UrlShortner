@@ -36,6 +36,8 @@ export async function getUserUrls(userId: string): Promise<UrlItem[]> {
     return data.map((item) => ({
       shortCode: item.shortCode,
       originalUrl: typeof item.originalUrl === 'object' ? item.originalUrl.value : item.originalUrl,
+      clickCount: item.clickCount,
+      expiresAt: item.expiresAt,
       createdAt: new Date(item.createdAt).toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'short',
