@@ -9,7 +9,6 @@ export function RootLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* ── Skip Link ──────────────────────────────────────────────── */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-white focus:rounded-pill focus:text-sm focus:font-semibold focus:outline-none"
@@ -17,16 +16,13 @@ export function RootLayout() {
         Pular para o conteúdo principal
       </a>
 
-      {/* ── Navbar ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-hairline bg-canvas/90 backdrop-blur-sm">
-        <nav className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+      <header className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4">
+        <nav className="flex w-full max-w-5xl h-16 items-center justify-between px-6 rounded-xl border border-hairline bg-canvas/90 backdrop-blur-sm shadow-soft">
 
-          {/* Wordmark */}
           <LinkButton to={isAuthenticated ? "/dashboard" : "/"} variant="ghost" className="text-primary font-semibold text-base px-0 hover:bg-transparent">
             UrlShorter
           </LinkButton>
 
-          {/* Actions */}
           <div className="flex items-center gap-3">
             <button
               onClick={toggleTheme}
@@ -71,8 +67,7 @@ export function RootLayout() {
         </nav>
       </header>
 
-      {/* ── Content ────────────────────────────────────────────────── */}
-      <main id="main-content" className="flex-1">
+      <main id="main-content" className="flex-1 pt-24">
         <Outlet />
       </main>
     </div>
