@@ -7,6 +7,7 @@ import UserUrlsTable from '../components/UserUrlsTable'
 import Card from '../components/Card'
 import { getMyUrls, getUrlAnalytics } from '../services/url.service'
 import StatsProgressBarList from '../components/StatsProgressBarList'
+import DonutChart from '../charts/DonutChart'
 import { parseUserAgent } from '../utils/userAgent'
 
 type TabType = 'resumo' | 'gerenciar' | 'graficos'
@@ -284,19 +285,25 @@ export function Dashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <StatsProgressBarList
-                      title="Navegadores"
-                      items={analyticsStats.browsers}
-                      total={analyticsData.totalClicks}
-                      barColorClass="bg-primary"
-                    />
+                    <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">
+                        Navegadores
+                      </h4>
+                      <DonutChart
+                        segments={analyticsStats.browsers.map(b => ({ name: b.name, count: b.count }))}
+                        size={140}
+                      />
+                    </Card>
 
-                    <StatsProgressBarList
-                      title="Sistemas Operacionais"
-                      items={analyticsStats.systems}
-                      total={analyticsData.totalClicks}
-                      barColorClass="bg-primary-active"
-                    />
+                    <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">
+                        Sistemas Operacionais
+                      </h4>
+                      <DonutChart
+                        segments={analyticsStats.systems.map(s => ({ name: s.name, count: s.count }))}
+                        size={140}
+                      />
+                    </Card>
                   </div>
                 </div>
               )}
