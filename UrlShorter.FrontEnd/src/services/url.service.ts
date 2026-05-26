@@ -11,6 +11,17 @@ export interface ApiShortenedUrl {
   createdAt: string
   isActive: boolean
 }
+export interface ClickLog {
+  ipAddress: string
+  userAgent?: string
+  occurredAt: string
+}
+export interface UrlAnalytics {
+  shortCode: string
+  originalUrl: string
+  totalClicks: number
+  clicks: ClickLog[]
+}
 
 /**
  * POST /api/urls
@@ -50,4 +61,15 @@ export async function getUserUrls(userId: string): Promise<UrlItem[]> {
     }
     throw err
   }
+}
+/**
+ * GET /api/urls/{shortCode}/analytics?userId={userId}
+ * Retorna um objeto com as estatísticas de cliques da URL encurtada.
+ */
+export async function getUrlAnalytics(shortCode: string, userId: string): Promise<UrlAnalytics> {
+  const sanitizedPayload = {
+    userId: userId && userId.trim() !== '' ? userId : undefined,
+  }
+  const { data } = await api.get<UrlAnalytics>(`/urls/${shortCode}/analytics`, { params: sanitizedPayload })
+  return data
 }
