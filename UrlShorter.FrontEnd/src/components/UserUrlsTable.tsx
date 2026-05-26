@@ -124,10 +124,26 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
             <tbody className="divide-y divide-hairline/20 text-xs">
               {filteredAndSortedUrls.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted">
-                    {urls.length === 0
-                      ? 'Você ainda não possui links encurtados.'
-                      : 'Nenhum link corresponde aos filtros aplicados.'}
+                  <td colSpan={6} className="px-4 py-12 text-center">
+                    <div className="flex flex-col items-center gap-2 text-muted">
+                      {urls.length === 0 ? (
+                        <>
+                          <svg className="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                          </svg>
+                          <p className="text-sm text-muted font-medium">Você ainda não possui links encurtados.</p>
+                          <p className="text-xs text-muted/70">Crie seu primeiro link no painel Resumo.</p>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                          <p className="text-sm text-muted font-medium">Nenhum link corresponde aos filtros aplicados.</p>
+                          <p className="text-xs text-muted/70">Tente ajustar sua busca ou limpar os filtros.</p>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
