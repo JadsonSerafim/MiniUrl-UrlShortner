@@ -3,6 +3,7 @@ import type { UrlItem } from '../types'
 import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
 import UrlAnalyticsModal from './UrlAnalyticsModal'
+import { EmptyState, EmptyIcon } from './EmptyState'
 
 interface RecentLinksListProps {
   urls: UrlItem[]
@@ -23,11 +24,12 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
 
       <div className="flex flex-col gap-3">
         {recentUrls.length === 0 ? (
-          <div className="rounded-xl border border-hairline/50 p-6 bg-surface text-center">
-            <p className="text-sm text-muted">
-              Você ainda não possui links encurtados.
-            </p>
-          </div>
+          <EmptyState
+            compact
+            icon={<EmptyIcon />}
+            title="Você ainda não possui links encurtados."
+            description="Crie seu primeiro link acima para começar a acompanhar os acessos."
+          />
         ) : (
           recentUrls.map((item) => {
             const fullUrl = `${backendBaseUrl}/${item.shortCode}`
