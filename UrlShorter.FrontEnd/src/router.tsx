@@ -8,6 +8,8 @@ import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Dashboard } from './pages/Dashboard'
+import { Expired } from './pages/Expired'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 export const router = createBrowserRouter([
   {
@@ -15,6 +17,8 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <Home /> },
+      { path: 'expired', element: <Expired /> },
+      { path: 'not-found', element: <NotFoundPage /> },
 
       {
         element: <AuthLayout />,
