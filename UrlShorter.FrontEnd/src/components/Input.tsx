@@ -34,11 +34,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(({
         ref={ref}
         id={inputId}
         className={`${mono ? 'input-mono' : 'input-base'} ${error ? 'border-red-500 focus:border-red-500' : ''} ${className}`}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${inputId}-error` : undefined}
         {...props}
       />
 
       {error && !hideErrorText && (
-        <p className="text-xs text-red-400 animate-fade-in" role="alert">
+        <p id={`${inputId}-error`} className="text-xs text-red-400 animate-fade-in" role="alert">
           {error}
         </p>
       )}

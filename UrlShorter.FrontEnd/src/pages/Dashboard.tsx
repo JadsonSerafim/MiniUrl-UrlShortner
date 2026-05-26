@@ -98,8 +98,10 @@ export function Dashboard() {
           </p>
         </div>
 
-        <div className="flex border-b border-hairline/60 gap-6">
+        <div className="flex border-b border-hairline/60 gap-6" role="tablist">
           <button
+            role="tab"
+            aria-selected={activeTab === 'resumo'}
             onClick={() => setActiveTab('resumo')}
             className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'resumo' ? 'text-primary' : 'text-muted hover:text-ink'
               }`}
@@ -110,6 +112,9 @@ export function Dashboard() {
             )}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'gerenciar'}
+            aria-controls="panel-gerenciar"
             onClick={() => setActiveTab('gerenciar')}
             className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-1.5 ${activeTab === 'gerenciar' ? 'text-primary' : 'text-muted hover:text-ink'
               }`}
@@ -124,6 +129,8 @@ export function Dashboard() {
             )}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'graficos'}
             onClick={() => setActiveTab('graficos')}
             className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'graficos' ? 'text-primary' : 'text-muted hover:text-ink'
               }`}
@@ -137,7 +144,7 @@ export function Dashboard() {
       </div>
 
       {activeTab === 'resumo' && (
-        <div className="flex flex-col gap-8 animate-fade-in">
+        <div id="panel-resumo" role="tabpanel" className="flex flex-col gap-8 animate-fade-in">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card compact className="p-5 bg-surface/20 border-hairline/40 flex flex-col gap-1 text-left">
               <span className="text-[10px] uppercase font-bold tracking-wider text-muted">Total de Links</span>
@@ -200,7 +207,7 @@ export function Dashboard() {
       )}
 
       {activeTab === 'gerenciar' && (
-        <div className="w-full animate-fade-in">
+        <div id="panel-gerenciar" role="tabpanel" className="w-full animate-fade-in">
           {isLoading ? (
             <div className="animate-shimmer rounded-xl h-64 border border-white/5" />
           ) : (
@@ -210,7 +217,7 @@ export function Dashboard() {
       )}
 
       {activeTab === 'graficos' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start animate-fade-in text-left">
+        <div id="panel-graficos" role="tabpanel" className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start animate-fade-in text-left">
           <div className="md:col-span-1 flex flex-col gap-6">
             <StatsProgressBarList
               title="Top Links mais Clicados"
