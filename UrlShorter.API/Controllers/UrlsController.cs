@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using static System.Net.WebRequestMethods;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
@@ -11,10 +12,12 @@ namespace UrlShorter.API.Controllers;
 public class UrlsController : ApiController
 {
     private readonly ISender _sender;
+    private readonly IConfiguration _configuration;
 
-    public UrlsController(ISender sender)
+    public UrlsController(ISender sender, IConfiguration configuration)
     {
         _sender = sender;
+        _configuration = configuration;
     }
 
     [HttpPost]
@@ -31,9 +34,19 @@ public class UrlsController : ApiController
         var query = new GetOriginalUrlQuery(shortCode, ipAddress, userAgent);
         var result = await _sender.Send(query);
 
-        return result.IsSuccess
-            ? Redirect(result.Value)
-            : HandleFailure(result);
+        if (result.IsSuccess)
+        {
+            return Redirect(result.Value);
+        }
+
+        var frontendUrl = _configuration["FrontendUrl"];
+
+        if (result.Error.Code == "Url.Expired")
+        {
+            return Redirect($"{frontendUrl}/expired?code={shortCode}");
+        }
+
+        return Redirect($"{frontendUrl}/not-found?code={shortCode}");
     }
 
     [HttpGet("user/{userId:guid}")]
