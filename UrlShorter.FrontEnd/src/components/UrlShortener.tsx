@@ -4,6 +4,7 @@ import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useClipboard } from '../hooks/useClipboard'
+import { useTemporaryState } from '../hooks/useTemporaryState'
 import { shortenUrl } from '../services/url.service'
 import type { ApiError } from '../types'
 import Card from './Card'
@@ -28,7 +29,7 @@ export default function UrlShortener({
 }: UrlShortenerProps) {
   const [shortCode, setShortCode] = useState<string | null>(null)
   const [submittedUrl, setSubmittedUrl] = useState<string>('')
-  const [errorMsg, setErrorMsg] = useState<string | undefined>()
+  const [errorMsg, setErrorMsg] = useTemporaryState<string | undefined>(undefined, 4000)
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(shortenUrlSchema),

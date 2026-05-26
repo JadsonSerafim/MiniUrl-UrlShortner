@@ -9,21 +9,22 @@ import { useAuth } from '../contexts/AuthContext'
 import type { ApiError } from '../types'
 
 import { extractApiError } from '../utils/errorParser'
+import { useTemporaryState } from '../hooks/useTemporaryState'
 
 export function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
 
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [serverError, setServerError] = useState<string | undefined>()
+  const [serverError, setServerError] = useTemporaryState<string | undefined>(undefined, 4000)
 
   const mutation = useMutation({
     mutationFn: () => loginUser({ email, password }),
 
     onSuccess: (data) => {
       login(data.token.token, {
-        name:  data.name,
+        name: data.name,
         email,
       })
       navigate('/dashboard', { replace: true })
