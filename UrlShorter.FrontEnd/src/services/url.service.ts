@@ -38,22 +38,18 @@ export async function shortenUrl(payload: ShortenUrlRequest): Promise<string> {
 }
 
 /**
- * GET /api/urls/user/{userId}
- * Busca todas as URLs encurtadas de um usuário específico.
+ * GET /api/urls/my-urls
+ * Busca todas as URLs encurtadas do usuário autenticado.
  */
-export async function getUserUrls(userId: string): Promise<UrlItem[]> {
+export async function getMyUrls(): Promise<UrlItem[]> {
   try {
-    const { data } = await api.get<ApiShortenedUrl[]>(`/urls/user/${userId}`)
+    const { data } = await api.get<ApiShortenedUrl[]>('/urls/my-urls')
     return data.map((item) => ({
       shortCode: item.shortCode,
       originalUrl: typeof item.originalUrl === 'object' ? item.originalUrl.value : item.originalUrl,
       clickCount: item.clickCount,
       expiresAt: item.expiresAt,
-      createdAt: new Date(item.createdAt).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
+      createdAt: item.createdAt,
     }))
   } catch (err: any) {
     if (err.response?.status === 404) {

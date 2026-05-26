@@ -13,6 +13,8 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
   const [selectedShortCode, setSelectedShortCode] = useState<string | null>(null)
   const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
+  const recentUrls = urls.slice(0, 5)
+
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted px-1">
@@ -20,14 +22,14 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
       </h2>
 
       <div className="flex flex-col gap-3">
-        {urls.length === 0 ? (
+        {recentUrls.length === 0 ? (
           <div className="rounded-xl border border-hairline/50 p-6 bg-surface text-center">
             <p className="text-sm text-muted">
               Você ainda não possui links encurtados.
             </p>
           </div>
         ) : (
-          urls.map((item) => {
+          recentUrls.map((item) => {
             const fullUrl = `${backendBaseUrl}/${item.shortCode}`
             const expiresText = item.expiresAt
               ? new Date(item.expiresAt).toLocaleDateString('pt-BR', {
@@ -39,12 +41,18 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                 })
               : 'Sem expiração'
 
+            const formattedCreatedAt = new Date(item.createdAt).toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            })
+
             return (
               <Card key={item.shortCode} compact className="card-interactive flex flex-col gap-3">
                 <div>
                   <div className="flex justify-between items-start gap-2">
                     <span className="text-mono font-medium text-ink truncate">{item.shortCode}</span>
-                    <span className="text-[10px] text-muted">{item.createdAt}</span>
+                    <span className="text-[10px] text-muted">{formattedCreatedAt}</span>
                   </div>
                   <p className="text-xs text-body truncate mt-1">
                     {item.originalUrl}

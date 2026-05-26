@@ -62,7 +62,7 @@ export default function UrlShortener({
       setShortCode(code)
       setErrorMsg(undefined)
       if (userId) {
-        queryClient.invalidateQueries({ queryKey: ['userUrls', userId] })
+        queryClient.invalidateQueries({ queryKey: ['userUrls'] })
       }
     },
     onError: (err: AxiosError<ApiError>) => {
