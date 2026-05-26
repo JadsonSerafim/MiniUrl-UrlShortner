@@ -70,6 +70,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
             <h3 className="text-xl font-bold mt-0.5 text-mono text-ink">{shortCode}</h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-surface-soft text-muted hover:text-ink transition-colors"
           >
@@ -104,6 +105,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
                     <span className="text-xs text-primary font-medium">Cliques Totais</span>
                     {data?.clicks && data.clicks.length > 0 && (
                       <button
+                        type="button"
                         onClick={() => setIsHistoryOpen(true)}
                         className="p-1 rounded-lg hover:bg-primary/10 text-primary transition-colors duration-150"
                         title="Ver histórico de cliques"

@@ -154,6 +154,7 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                         <div className="flex items-center gap-2">
                           <span>{item.shortCode}</span>
                           <button
+                            type="button"
                             onClick={() => copy(fullUrl)}
                             className="p-1 hover:bg-surface rounded text-muted hover:text-ink transition-colors animate-fade-in"
                             title="Copiar link"
@@ -195,6 +196,7 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                             Acessar ↗
                           </a>
                           <button
+                            type="button"
                             onClick={() => setSelectedShortCode(item.shortCode)}
                             className="text-xs text-primary font-semibold hover:text-primary-active transition-colors flex items-center gap-1"
                           >

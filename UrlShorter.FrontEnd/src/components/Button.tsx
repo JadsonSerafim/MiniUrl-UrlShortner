@@ -31,6 +31,7 @@ export default function Button({
   return (
     <button
       {...props}
+      type={props.type || 'button'}
       disabled={disabled || loading}
       className={`${variantClass[variant]} ${sizeClass[size]} ${className}`}
     >
