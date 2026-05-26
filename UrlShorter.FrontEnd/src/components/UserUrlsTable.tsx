@@ -110,7 +110,7 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
 
         {/* Tabela */}
         <div className="w-full overflow-x-auto rounded-lg border border-hairline/40">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[640px] text-left border-collapse">
             <thead>
               <tr className="bg-surface-soft/40 border-b border-hairline/40 text-[11px] font-semibold text-muted uppercase tracking-wider">
                 <th className="px-4 py-3">Link Curto</th>

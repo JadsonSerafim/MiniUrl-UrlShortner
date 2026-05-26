@@ -41,8 +41,8 @@ export default function ClickHistoryModal({
 
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="rounded-xl border border-hairline bg-surface-soft overflow-hidden">
-                        <div className="max-h-96 overflow-y-auto">
-                            <table className="w-full border-collapse text-left text-xs">
+                        <div className="max-h-96 overflow-x-auto overflow-y-auto">
+                            <table className="w-full min-w-[420px] border-collapse text-left text-xs">
                                 <thead className="bg-surface-soft text-muted sticky top-0 font-medium">
                                     <tr>
                                         <th className="p-3">Data/Hora</th>
