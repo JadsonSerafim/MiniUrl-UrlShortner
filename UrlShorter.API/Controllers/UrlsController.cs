@@ -4,6 +4,7 @@ using static System.Net.WebRequestMethods;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetAllUserUrls;
+using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetUrlAnalytics;
 
 namespace UrlShorter.API.Controllers;
 
@@ -39,6 +40,16 @@ public class UrlsController : ApiController
     public async Task<IActionResult> GetUserUrls([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
         var query = new GetAllUserUrlsQuery(userId);
+        return ProcessResult(await _sender.Send(query, cancellationToken));
+    }
+
+    [HttpGet("{shortCode}/analytics")]
+    public async Task<IActionResult> GetUrlAnalytics(
+        [FromRoute] string shortCode,
+        [FromQuery] Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetUrlAnalyticsQuery(shortCode, userId);
         return ProcessResult(await _sender.Send(query, cancellationToken));
     }
 }
