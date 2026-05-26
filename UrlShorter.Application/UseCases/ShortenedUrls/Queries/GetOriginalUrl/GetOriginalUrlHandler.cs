@@ -45,7 +45,21 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.Expired;
         }
 
-        await _cacheService.SetAsync(request.ShortCode, shortenedUrl.OriginalUrl.Value, TimeSpan.FromDays(2), cancellationToken);
+        var cacheTtl = TimeSpan.FromDays(2);
+        if (shortenedUrl.ExpiresAt.HasValue)
+        {
+            var remainingTime = shortenedUrl.ExpiresAt.Value - DateTime.UtcNow;
+            if (remainingTime <= TimeSpan.Zero)
+            {
+                return ErrorsUrl.Expired;
+            }
+            if (remainingTime < cacheTtl)
+            {
+                cacheTtl = remainingTime;
+            }
+        }
+
+        await _cacheService.SetAsync(request.ShortCode, shortenedUrl.OriginalUrl.Value, cacheTtl, cancellationToken);
 
         _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
 
