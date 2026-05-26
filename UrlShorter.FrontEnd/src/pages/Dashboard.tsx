@@ -174,7 +174,7 @@ export function Dashboard() {
             </div>
 
             <div className="flex flex-col gap-6">
-              <Card className="border border-white/5 bg-surface/30 p-5 flex flex-col gap-2 text-left">
+              <Card className="border border-hairline bg-surface-soft p-5 flex flex-col gap-2 text-left">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-ink flex items-center gap-1.5">
                   <span>Sua Conta</span>
                   <span className="text-primary font-normal text-[10px] bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">Ativa</span>
@@ -193,7 +193,7 @@ export function Dashboard() {
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="animate-shimmer rounded-xl h-28 border border-white/5"
+                        className="animate-shimmer rounded-xl h-28 border border-hairline"
                       />
                     ))}
                   </div>
@@ -209,7 +209,7 @@ export function Dashboard() {
       {activeTab === 'gerenciar' && (
         <div id="panel-gerenciar" role="tabpanel" className="w-full animate-fade-in">
           {isLoading ? (
-            <div className="animate-shimmer rounded-xl h-64 border border-white/5" />
+            <div className="animate-shimmer rounded-xl h-64 border border-hairline" />
           ) : (
             <UserUrlsTable urls={urls} />
           )}
@@ -228,7 +228,7 @@ export function Dashboard() {
           </div>
 
           <div className="md:col-span-2 flex flex-col gap-6">
-            <Card className="p-6 border border-white/5 bg-surface/30 flex flex-col gap-6">
+            <Card className="p-6 border border-hairline bg-surface-soft flex flex-col gap-6">
               <div>
                 <h3 className="text-base font-bold text-ink">Análise de Performance Individual</h3>
                 <p className="text-xs text-muted">Selecione uma de suas URLs para ver detalhes de acessos, dispositivos e navegadores</p>
@@ -250,7 +250,7 @@ export function Dashboard() {
               </div>
 
               {!selectedAnalyticsCode ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-white/[0.01]">
+                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-surface-soft">
                   <svg className="w-8 h-8 opacity-40 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
                   </svg>
@@ -262,7 +262,7 @@ export function Dashboard() {
                   <p className="text-xs">Carregando telemetria...</p>
                 </div>
               ) : !analyticsData || analyticsData.clicks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-white/[0.01]">
+                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-surface-soft">
                   <p className="text-xs">Nenhum clique registrado para esta URL ainda.</p>
                 </div>
               ) : (
@@ -272,7 +272,7 @@ export function Dashboard() {
                       <span className="text-[10px] text-primary uppercase font-bold tracking-wider">Cliques Totais</span>
                       <span className="text-3xl font-extrabold text-ink mt-0.5">{analyticsData.totalClicks}</span>
                     </Card>
-                    <Card compact className="bg-white/[0.02] border border-white/5 p-4 flex flex-col text-left">
+                    <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col text-left">
                       <span className="text-[10px] text-muted uppercase font-bold tracking-wider">IPs Únicos</span>
                       <span className="text-3xl font-extrabold text-ink mt-0.5">{analyticsStats.uniqueClicksCount}</span>
                     </Card>

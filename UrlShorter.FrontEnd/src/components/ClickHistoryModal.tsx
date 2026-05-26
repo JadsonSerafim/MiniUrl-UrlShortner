@@ -20,8 +20,8 @@ export default function ClickHistoryModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
             <div className="absolute inset-0" onClick={onClose} />
 
-            <div className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl border border-white/5 bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
-                <div className="flex items-center justify-between p-6 border-b border-white/5">
+            <div className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
+                <div className="flex items-center justify-between p-6 border-b border-hairline">
                     <div>
                         <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">
                             Histórico de Cliques
@@ -30,7 +30,7 @@ export default function ClickHistoryModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-ink transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-surface-soft text-muted hover:text-ink transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -39,10 +39,10 @@ export default function ClickHistoryModal({
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6">
-                    <div className="rounded-xl border border-white/5 bg-white/[0.01] overflow-hidden">
+                    <div className="rounded-xl border border-hairline bg-surface-soft overflow-hidden">
                         <div className="max-h-96 overflow-y-auto">
                             <table className="w-full border-collapse text-left text-xs">
-                                <thead className="bg-white/[0.03] text-muted sticky top-0 font-medium">
+                                <thead className="bg-surface-soft text-muted sticky top-0 font-medium">
                                     <tr>
                                         <th className="p-3">Data/Hora</th>
                                         <th className="p-3">IP (Anônimo)</th>
@@ -54,7 +54,7 @@ export default function ClickHistoryModal({
                                         clicks.map((click, i) => {
                                             const { browser, os } = parseUserAgent(click.userAgent)
                                             return (
-                                                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                                                <tr key={i} className="hover:bg-surface-soft transition-colors">
                                                     <td className="p-3 text-mono">
                                                         {new Date(click.occurredAt).toLocaleString('pt-BR')}
                                                     </td>

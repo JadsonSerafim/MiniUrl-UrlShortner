@@ -63,15 +63,15 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
 
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-white/5 bg-surface text-ink shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-white/5">
+      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-hairline">
           <div>
             <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">Métricas de Acesso</span>
             <h3 className="text-xl font-bold mt-0.5 text-mono text-ink">{shortCode}</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/5 text-muted hover:text-ink transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-soft text-muted hover:text-ink transition-colors"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -91,7 +91,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
             </div>
           ) : (
             <>
-              <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="p-4 rounded-xl bg-surface-soft border border-hairline">
                 <span className="text-[10px] text-muted uppercase font-semibold">URL de Destino</span>
                 <p className="text-sm text-body truncate mt-0.5" title={data?.originalUrl}>
                   {data?.originalUrl}
@@ -120,7 +120,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
                   </span>
                 </Card>
 
-                <Card compact className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-between">
+                <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col justify-between">
                   <span className="text-xs text-muted font-medium">Cliques Únicos (IPs)</span>
                   <span className="text-3xl font-extrabold tracking-tight mt-1 text-ink">
                     {stats.uniqueClicksCount}
