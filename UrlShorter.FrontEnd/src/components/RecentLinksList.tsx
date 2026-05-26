@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import type { UrlItem } from '../types'
 import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
+import UrlAnalyticsModal from './UrlAnalyticsModal'
 
 interface RecentLinksListProps {
   urls: UrlItem[]
@@ -8,6 +10,7 @@ interface RecentLinksListProps {
 
 export default function RecentLinksList({ urls }: RecentLinksListProps) {
   const { copy } = useClipboard()
+  const [selectedShortCode, setSelectedShortCode] = useState<string | null>(null)
   const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
   return (
@@ -31,6 +34,8 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                   day: '2-digit',
                   month: 'short',
                   year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })
               : 'Sem expiração'
 
@@ -68,14 +73,23 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 border-t border-hairline/50 pt-2">
-                  <a
-                    href={fullUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-muted hover:text-ink transition-colors"
-                  >
-                    Acessar link ↗
-                  </a>
+                  <div className="flex items-center gap-3">
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs text-muted hover:text-ink transition-colors"
+                    >
+                      Acessar link ↗
+                    </a>
+
+                    <button
+                      onClick={() => setSelectedShortCode(item.shortCode)}
+                      className="text-xs text-muted hover:text-ink transition-colors"
+                    >
+                      Métricas
+                    </button>
+                  </div>
 
                   <button
                     onClick={() => copy(fullUrl)}
@@ -89,6 +103,14 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
           })
         )}
       </div>
+
+      {selectedShortCode && (
+        <UrlAnalyticsModal
+          shortCode={selectedShortCode}
+          isOpen={!!selectedShortCode}
+          onClose={() => setSelectedShortCode(null)}
+        />
+      )}
     </div>
   )
 }

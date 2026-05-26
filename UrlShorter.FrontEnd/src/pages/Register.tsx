@@ -8,20 +8,20 @@ import { registerUser } from '../services/auth.service'
 import type { ApiError } from '../types'
 
 import { extractApiError } from '../utils/errorParser'
+import { useTemporaryState } from '../hooks/useTemporaryState'
 
 export function Register() {
   const navigate = useNavigate()
 
-  const [name, setName]         = useState('')
-  const [email, setEmail]       = useState('')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [serverError, setServerError] = useState<string | undefined>()
+  const [serverError, setServerError] = useTemporaryState<string | undefined>(undefined, 4000)
 
   const mutation = useMutation({
     mutationFn: () => registerUser({ name, email, password }),
 
     onSuccess: () => {
-      // Cadastro feito — redireciona para login
       navigate('/login', { replace: true })
     },
 
