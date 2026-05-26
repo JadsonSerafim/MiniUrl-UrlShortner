@@ -25,11 +25,12 @@ export function RootLayout() {
 
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={toggleTheme}
               className="btn-ghost p-0 w-9 h-9 rounded-full border border-hairline hover:bg-surface-soft transition-all duration-150 flex items-center justify-center cursor-pointer outline-none"
               title={theme === 'light' ? 'Ativar modo escuro' : 'Ativar modo claro'}
               aria-label="Alternar tema"
-              aria-pressed={theme === 'light'}
+              aria-pressed={theme === 'dark'}
             >
               {theme === 'light' ? (
                 <svg className="w-4 h-4 text-ink" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,6 +48,7 @@ export function RootLayout() {
               <>
                 <span className="text-xs text-muted hidden sm:block">{user?.name}</span>
                 <button
+                  type="button"
                   onClick={logout}
                   className="btn-secondary text-sm h-9 px-4"
                 >

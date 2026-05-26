@@ -100,8 +100,10 @@ export function Dashboard() {
 
         <div className="flex border-b border-hairline/60 gap-6" role="tablist">
           <button
+            type="button"
             role="tab"
             aria-selected={activeTab === 'resumo'}
+            aria-controls="panel-resumo"
             onClick={() => setActiveTab('resumo')}
             className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'resumo' ? 'text-primary' : 'text-muted hover:text-ink'
               }`}
@@ -112,6 +114,7 @@ export function Dashboard() {
             )}
           </button>
           <button
+            type="button"
             role="tab"
             aria-selected={activeTab === 'gerenciar'}
             aria-controls="panel-gerenciar"
@@ -129,8 +132,10 @@ export function Dashboard() {
             )}
           </button>
           <button
+            type="button"
             role="tab"
             aria-selected={activeTab === 'graficos'}
+            aria-controls="panel-graficos"
             onClick={() => setActiveTab('graficos')}
             className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'graficos' ? 'text-primary' : 'text-muted hover:text-ink'
               }`}

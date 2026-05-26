@@ -29,6 +29,7 @@ export default function ClickHistoryModal({
                         <h3 className="text-lg font-bold mt-0.5 text-mono text-ink">{shortCode}</h3>
                     </div>
                     <button
+                        type="button"
                         onClick={onClose}
                         className="p-1.5 rounded-lg hover:bg-surface-soft text-muted hover:text-ink transition-colors"
                     >

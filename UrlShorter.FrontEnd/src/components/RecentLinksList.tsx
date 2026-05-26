@@ -92,6 +92,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                     </a>
 
                     <button
+                      type="button"
                       onClick={() => setSelectedShortCode(item.shortCode)}
                       className="text-xs text-muted hover:text-ink transition-colors"
                     >
@@ -100,6 +101,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => copy(fullUrl)}
                     className="text-xs text-primary font-semibold hover:text-primary-active transition-colors"
                   >
