@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Enums;
@@ -8,6 +9,12 @@ namespace UrlShorter.API.Controllers;
 [Route("api/[controller]")]
 public class ApiController : ControllerBase
 {
+    protected Guid? GetUserId()
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        return Guid.TryParse(userIdString, out var userId) ? userId : null;
+    }
 
     protected IActionResult HandleFailure(Result result)
     {
