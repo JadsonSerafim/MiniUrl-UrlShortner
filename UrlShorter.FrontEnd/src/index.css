@@ -6,8 +6,9 @@
 @tailwind utilities;
 
 :root {
-  --color-primary:          #0052ff;
-  --color-primary-active:   #003ecc;
+  --color-primary:          #6366F1;
+  --color-primary-active:   #4F46E5;
+  --color-primary-disabled: #374151;
   --color-canvas:           #0a0b0d;
   --color-surface:          #16181c;
   --color-surface-soft:     #1e2025;
@@ -37,6 +38,7 @@
   --color-muted:            #64748b;
   --color-primary:          #6366F1;
   --color-primary-active:   #4F46E5;
+  --color-primary-disabled: #C7D2FE;
 }
 
 @layer base {
@@ -93,7 +95,7 @@
 
 
   ::selection {
-    background: rgba(0, 82, 255, 0.25);
+    background: rgba(99, 102, 241, 0.25);
     color: #ffffff;
   }
 }
@@ -163,7 +165,7 @@
   }
   .input-base:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   }
   .input-base:disabled {
     @apply opacity-40 cursor-not-allowed;

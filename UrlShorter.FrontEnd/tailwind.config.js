@@ -11,7 +11,7 @@ export default {
         primary: {
           DEFAULT: 'var(--color-primary)',   
           active:  'var(--color-primary-active)',   
-          disabled:'#a8b8cc',   
+          disabled:'var(--color-primary-disabled)',   
         },
 
         
