@@ -35,7 +35,7 @@ export default function StatsProgressBarList({
               </div>
               <div className="w-full h-1.5 rounded-full bg-hairline overflow-hidden">
                 <div
-                  className={`h-full rounded-full ${barColorClass}`}
+                  className={`h-full rounded-full ${barColorClass} transition-[width] duration-700 ease-out`}
                   style={{ width: `${(item.count / (total || 1)) * 100}%` }}
                 />
               </div>
