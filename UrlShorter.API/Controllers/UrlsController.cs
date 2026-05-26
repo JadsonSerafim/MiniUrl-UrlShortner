@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using static System.Net.WebRequestMethods;
@@ -6,6 +8,7 @@ using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetAllUserUrls;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetUrlAnalytics;
+using UrlShorter.Domain.Entities;
 
 namespace UrlShorter.API.Controllers;
 
@@ -47,6 +50,27 @@ public class UrlsController : ApiController
         }
 
         return Redirect($"{frontendUrl}/not-found?code={shortCode}");
+    }
+
+    [Authorize]
+    [HttpGet("my-urls")]
+    public async Task<IActionResult> GetMyUrls(CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var query = new GetAllUserUrlsQuery(userId.Value);
+        var result = await _sender.Send(query, cancellationToken);
+
+        if (result.IsFailure && result.Error.Code == "Url.NotFound")
+        {
+            return Ok(Array.Empty<ShortenedUrl>());
+        }
+
+        return ProcessResult(result);
     }
 
     [HttpGet("user/{userId:guid}")]
