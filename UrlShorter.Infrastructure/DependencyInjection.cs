@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IClickLogRepository, ClickLogRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
