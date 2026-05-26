@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTheme } from '../contexts/ThemeContext'
@@ -70,7 +71,13 @@ export function RootLayout() {
       </header>
 
       <main id="main-content" className="flex-1 pt-24">
-        <Outlet />
+        <Suspense fallback={
+          <div className="flex items-center justify-center py-24">
+            <div className="w-6 h-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          </div>
+        }>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

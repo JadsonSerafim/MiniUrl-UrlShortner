@@ -72,7 +72,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                     </div>
 
                     <div className="flex items-center gap-1 text-[11px] text-muted">
-                      <svg className="w-3.5 h-3.5 text-muted-foreground opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-3.5 h-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span title={item.expiresAt ? new Date(item.expiresAt).toLocaleString('pt-BR') : undefined}>
