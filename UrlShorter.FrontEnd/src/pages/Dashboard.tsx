@@ -8,6 +8,7 @@ import Card from '../components/Card'
 import { getMyUrls, getUrlAnalytics } from '../services/url.service'
 import StatsProgressBarList from '../components/StatsProgressBarList'
 import DonutChart from '../charts/DonutChart'
+import ClickTimelineChart from '../charts/ClickTimelineChart'
 import { parseUserAgent } from '../utils/userAgent'
 
 type TabType = 'resumo' | 'gerenciar' | 'graficos'
@@ -289,6 +290,13 @@ export function Dashboard() {
                       <span className="text-3xl font-extrabold text-ink mt-0.5">{analyticsStats.uniqueClicksCount}</span>
                     </Card>
                   </div>
+
+                  <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted">
+                      Cliques ao Longo do Tempo
+                    </h4>
+                    <ClickTimelineChart clicks={analyticsData.clicks} />
+                  </Card>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
