@@ -14,7 +14,11 @@ public class ShortenedUrl : Entity
     public DateTime? ExpiresAt { get; private set; }
     public Guid? UserId { get; private set; }
     
-    private ShortenedUrl() {}
+    private ShortenedUrl()
+    {
+        OriginalUrl = null!;
+        ShortCode = null!;
+    }
 
     private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt, string? name)
     {

@@ -8,7 +8,11 @@ public sealed class ClickLog : Entity
     public IpAddress IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
 
-    private ClickLog() { }
+    private ClickLog() 
+    {
+        ShortCode = null!;
+        IpAddress = null!;
+    }
 
     private ClickLog(string shortCode, IpAddress ipAddress, string? userAgent) : base()
     {
