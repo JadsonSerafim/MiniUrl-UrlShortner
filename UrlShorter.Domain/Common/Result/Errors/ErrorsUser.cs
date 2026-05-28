@@ -5,6 +5,13 @@ namespace UrlShorter.Domain.Common.Result.Errors;
 
 public static class ErrorsUser
 {
+    public static readonly Error NotFound = Error.NotFound(
+        "User.NotFound",
+        "O usuário não foi encontrado.");
+    public static readonly Error UserNotOwner = Error.Unauthorized(
+        "User.UserNotOwner",
+        "Você não é o dono desta URL.");
+
     public static readonly Error EmailEmpty = Error.Validation("User.EmailEmpty", "O email não pode ser vazio.");
     public static readonly Error EmailInvalid = Error.Validation("User.EmailInvalid", "O formato do email é inválido.");
     public static readonly Error NameEmpty = Error.Validation("User.NameEmpty", "O nome não pode ser vazio.");

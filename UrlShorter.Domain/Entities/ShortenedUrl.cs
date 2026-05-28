@@ -34,14 +34,21 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.ShortCodeEmpty;
         }
 
+        var creationTime = DateTime.UtcNow;
+
         if (expiresAt is null)
         {
-            expiresAt = DateTime.UtcNow.AddDays(1);
+            expiresAt = creationTime.AddDays(1);
         }
 
         if (userId is null)
         {
-            expiresAt = DateTime.UtcNow.AddDays(1).AddMinutes(2);
+            expiresAt = creationTime.AddDays(1).AddMinutes(2);
+        }
+
+        if (expiresAt > creationTime.AddYears(1))
+        {
+            return ErrorsUrl.ExtensionExceedsLimit;
         }
 
         if (userId is not null && currentUserUrlsCount >= 1000)
@@ -74,11 +81,30 @@ public class ShortenedUrl : Entity
         return ExpiresAt.HasValue && ExpiresAt.Value < DateTime.UtcNow;
     }
     
-    public DateTime ExtendExpiration(DateTime? valorParaAdicionarNaData = null)
+    public Result ExtendExpiration(int quantity, string unit)
     {
-        if(valorParaAdicionarNaData is not null)
-            ExpiresAt = valorParaAdicionarNaData;
-        ExpiresAt = DateTime.UtcNow.AddDays(1);
-        return ExpiresAt.Value;
+        if (quantity <= 0)
+            return ErrorsUrl.InvalidExtensionQuantity;
+
+        var now = DateTime.UtcNow;
+        var maxExpiration = now.AddYears(1);
+
+        var baseDate = ExpiresAt.HasValue && ExpiresAt.Value > now ? ExpiresAt.Value : now;
+
+        var newExpiration = unit.ToLower() switch
+        {
+            "days" => baseDate.AddDays(quantity),
+            "months" => baseDate.AddMonths(quantity),
+            _ => baseDate.AddDays(quantity)
+        };
+
+        if (newExpiration > maxExpiration)
+        {
+            return ErrorsUrl.ExtensionExceedsLimit;
+        }
+
+        ExpiresAt = newExpiration;
+        Update();
+        return Result.Success();
     }
 }
