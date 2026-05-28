@@ -7,6 +7,7 @@ namespace UrlShorter.Domain.Entities;
 
 public class ShortenedUrl : Entity
 {
+    public string? Name { get; private set; }
     public Url OriginalUrl { get; private set; }
     public string ShortCode { get; private set; }
     public int ClickCount { get; private set; }
@@ -15,8 +16,9 @@ public class ShortenedUrl : Entity
     
     private ShortenedUrl() {}
 
-    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt)
+    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt, string? name)
     {
+        Name = name;
         OriginalUrl = originalUrl;
         ShortCode = shortCode;
         UserId = userId;
@@ -24,7 +26,8 @@ public class ShortenedUrl : Entity
         ExpiresAt = expiresAt;
     }
 
-    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null, int currentUserUrlsCount = 0)
+    public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null, int currentUserUrlsCount = 0
+    , string? name = null)
     {
         if (string.IsNullOrWhiteSpace(shortCode))
         {
@@ -46,7 +49,12 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.UserUrlLimitExceeded;
         }
 
-        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt);
+        if(name is not null && name.Length > 30)
+        {
+            return ErrorsUrl.InvalidName;
+        }
+
+        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt, name);
     }
 
     public Result UpdateUrl(Url newUrl)
@@ -64,5 +72,13 @@ public class ShortenedUrl : Entity
     public bool IsExpired()
     {
         return ExpiresAt.HasValue && ExpiresAt.Value < DateTime.UtcNow;
+    }
+    
+    public DateTime ExtendExpiration(DateTime? valorParaAdicionarNaData = null)
+    {
+        if(valorParaAdicionarNaData is not null)
+            ExpiresAt = valorParaAdicionarNaData;
+        ExpiresAt = DateTime.UtcNow.AddDays(1);
+        return ExpiresAt.Value;
     }
 }

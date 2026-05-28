@@ -17,5 +17,9 @@ public sealed class CreateShortenedUrlCommandValidator : AbstractValidator<Creat
         RuleFor(x => x.ExpiresAt)
             .Must(date => !date.HasValue || date.Value > DateTime.UtcNow)
             .WithError(ErrorsUrl.InvalidExpirationDate);
+
+        RuleFor(x => x.Name)
+            .MaximumLength(30)
+            .WithError(ErrorsUrl.InvalidName);
     }
 }
