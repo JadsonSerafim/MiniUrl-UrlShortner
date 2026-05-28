@@ -12,7 +12,12 @@ public sealed class User : Entity
 
     public Password Password { get; private set; }
 
-    private User() { }
+    private User() 
+    {
+        Email = null!;
+        Name = null!;
+        Password = null!;
+    }
 
     private User(Email email, string name, Password password)
     {
