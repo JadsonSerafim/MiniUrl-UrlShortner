@@ -8,6 +8,7 @@ using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetAllUserUrls;
 using UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetUrlAnalytics;
+using UrlShorter.Application.UseCases.ShortenedUrls.Commands.ExtendExpiration;
 using UrlShorter.Domain.Entities;
 
 namespace UrlShorter.API.Controllers;
@@ -88,5 +89,20 @@ public class UrlsController : ApiController
     {
         var query = new GetUrlAnalyticsQuery(shortCode, userId);
         return ProcessResult(await _sender.Send(query, cancellationToken));
+    }
+
+    [Authorize]
+    [HttpPatch("{shortCode}/extend")]
+    public async Task<IActionResult> ExtendExpiration(
+        [FromRoute] string shortCode,
+        [FromBody] ExtendUrlExpirationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        if (userId == null)
+            return Unauthorized();
+
+        var command = new ExtendUrlExpirationCommand(shortCode, request.Quantity, request.Unit, userId.Value);
+        return ProcessResult(await _sender.Send(command, cancellationToken));
     }
 }
