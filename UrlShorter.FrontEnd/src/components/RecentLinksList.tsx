@@ -3,6 +3,7 @@ import type { UrlItem } from '../types'
 import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
 import UrlAnalyticsModal from './UrlAnalyticsModal'
+import { EmptyState, EmptyIcon } from './EmptyState'
 
 interface RecentLinksListProps {
   urls: UrlItem[]
@@ -23,22 +24,23 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
 
       <div className="flex flex-col gap-3">
         {recentUrls.length === 0 ? (
-          <div className="rounded-xl border border-hairline/50 p-6 bg-surface text-center">
-            <p className="text-sm text-muted">
-              Você ainda não possui links encurtados.
-            </p>
-          </div>
+          <EmptyState
+            compact
+            icon={<EmptyIcon />}
+            title="Você ainda não possui links encurtados."
+            description="Crie seu primeiro link acima para começar a acompanhar os acessos."
+          />
         ) : (
           recentUrls.map((item) => {
             const fullUrl = `${backendBaseUrl}/${item.shortCode}`
             const expiresText = item.expiresAt
               ? new Date(item.expiresAt).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
               : 'Sem expiração'
 
             const formattedCreatedAt = new Date(item.createdAt).toLocaleDateString('pt-BR', {
@@ -70,7 +72,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                     </div>
 
                     <div className="flex items-center gap-1 text-[11px] text-muted">
-                      <svg className="w-3.5 h-3.5 text-muted-foreground opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="w-3.5 h-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span title={item.expiresAt ? new Date(item.expiresAt).toLocaleString('pt-BR') : undefined}>
@@ -80,7 +82,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 border-t border-hairline/50 pt-2">
+                <div className="flex items-center justify-between gap-2 border-t border-hairline pt-2">
                   <div className="flex items-center gap-3">
                     <a
                       href={fullUrl}
@@ -92,6 +94,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                     </a>
 
                     <button
+                      type="button"
                       onClick={() => setSelectedShortCode(item.shortCode)}
                       className="text-xs text-muted hover:text-ink transition-colors"
                     >
@@ -100,6 +103,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => copy(fullUrl)}
                     className="text-xs text-primary font-semibold hover:text-primary-active transition-colors"
                   >

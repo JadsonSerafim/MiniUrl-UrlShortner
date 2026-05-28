@@ -11,7 +11,7 @@ export default {
         primary: {
           DEFAULT: 'var(--color-primary)',   
           active:  'var(--color-primary-active)',   
-          disabled:'#a8b8cc',   
+          disabled:'var(--color-primary-disabled)',   
         },
 
         
@@ -35,8 +35,8 @@ export default {
 
       
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
-        mono: ['"JetBrains Mono"', '"Fira Code"', 'Consolas', 'monospace'],
+        sans: ['"Fira Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        mono: ['"Fira Code"', 'Consolas', 'monospace'],
       },
 
       fontSize: {
