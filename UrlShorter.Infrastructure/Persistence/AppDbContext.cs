@@ -30,7 +30,7 @@ public class AppDbContext : DbContext
     private static LambdaExpression GetIsActiveFilter(Type entityType)
     {
         var entity = Expression.Parameter(entityType, "entity");
-        var isActiveProperty = entityType.GetProperty("IsActive");
+        var isActiveProperty = entityType.GetProperty("IsActive")!;
         var isActive = Expression.Property(entity, isActiveProperty);
         var isActiveFilter = Expression.Lambda(Expression.Equal(isActive, Expression.Constant(true)), entity);
         return isActiveFilter;
