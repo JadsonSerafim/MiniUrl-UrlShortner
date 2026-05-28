@@ -25,6 +25,11 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 
     public async Task<Result<string>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(request.ShortCode))
+        {
+            return ErrorsUrl.NotFound;
+        }
+
         var cacheUrl = await _cacheService.GetAsync(request.ShortCode, cancellationToken);
 
         if (cacheUrl is not null)

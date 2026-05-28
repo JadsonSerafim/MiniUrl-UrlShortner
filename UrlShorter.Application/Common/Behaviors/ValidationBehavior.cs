@@ -57,7 +57,7 @@ where TResponse : Result
         .MakeGenericType(valueType)
         .GetMethod(nameof(Result.Failure), new[] { typeof(Error) });
 
-        object validationResult = failureMethod.Invoke(null, new[] { validationError })!;
+        object validationResult = failureMethod!.Invoke(null, new[] { validationError })!;
 
         return (TResponse)validationResult;
     }
