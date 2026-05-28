@@ -59,7 +59,7 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
             maxTries--;
         }
 
-        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt, activeCount);
+        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt, activeCount, request.Name);
         if(shortenedUrlResult.IsFailure) return Result<string>.Failure(shortenedUrlResult.Error);
 
         await _shortenedUrlRepository.AddAsync(shortenedUrlResult.Value, cancellationToken);
