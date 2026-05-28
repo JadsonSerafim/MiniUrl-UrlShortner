@@ -15,6 +15,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
+
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
@@ -29,10 +31,12 @@ public static class DependencyInjection
         services.AddScoped<IShortenedUrlRepository, ShortenedUrlRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IClickLogRepository, ClickLogRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenProvider, TokenProvider>();
+        services.AddScoped<IEmailService, EmailService>();
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
         services.AddSingleton<ClickLogFallbackRepository>();
