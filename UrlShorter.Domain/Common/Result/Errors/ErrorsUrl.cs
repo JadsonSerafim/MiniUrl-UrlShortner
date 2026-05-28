@@ -51,4 +51,16 @@ public static class ErrorsUrl
     public static readonly Error InvalidName = Error.Validation(
         "Url.InvalidName",
         "O nome deve ter no máximo 30 caracteres.");
+
+    public static readonly Error InvalidExtensionQuantity = Error.Validation(
+        "Url.InvalidExtensionQuantity",
+        "A quantidade de dias/meses deve ser maior que zero.");
+
+    public static readonly Error InvalidExtensionUnit = Error.Validation(
+        "Url.InvalidExtensionUnit",
+        "A unidade deve ser 'days' ou 'months'.");
+
+    public static readonly Error ExtensionExceedsLimit = Error.Validation(
+        "Url.ExtensionExceedsLimit",
+        "A data de expiração não pode ultrapassar 1 ano a partir de hoje.");
 }
