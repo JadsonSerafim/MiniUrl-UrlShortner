@@ -35,12 +35,12 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
             const fullUrl = `${backendBaseUrl}/${item.shortCode}`
             const expiresText = item.expiresAt
               ? new Date(item.expiresAt).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })
               : 'Sem expiração'
 
             const formattedCreatedAt = new Date(item.createdAt).toLocaleDateString('pt-BR', {
@@ -82,7 +82,7 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 border-t border-hairline/50 pt-2">
+                <div className="flex items-center justify-between gap-2 border-t border-hairline pt-2">
                   <div className="flex items-center gap-3">
                     <a
                       href={fullUrl}

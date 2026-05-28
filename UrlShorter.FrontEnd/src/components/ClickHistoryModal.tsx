@@ -17,7 +17,7 @@ export default function ClickHistoryModal({
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
             <div className="absolute inset-0" onClick={onClose} />
 
             <div className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
@@ -39,7 +39,7 @@ export default function ClickHistoryModal({
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex-1 overflow-y-auto p-6 min-h-[200px]">
                     <div className="rounded-xl border border-hairline bg-surface-soft overflow-hidden">
                         <div className="max-h-96 overflow-x-auto overflow-y-auto">
                             <table className="w-full min-w-[420px] border-collapse text-left text-xs">
@@ -50,7 +50,7 @@ export default function ClickHistoryModal({
                                         <th className="p-3">Dispositivo / Browser</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-white/5 text-body">
+                                <tbody className="divide-y divide-hairline/40 text-body">
                                     {clicks && clicks.length > 0 ? (
                                         clicks.map((click, i) => {
                                             const { browser, os } = parseUserAgent(click.userAgent)

@@ -43,7 +43,14 @@ export default function DonutChart({
     [segments, total]
   )
 
-  let cumulative = 0
+  const segmentsWithRotation = useMemo(() => {
+    return colored.reduce((acc, seg) => {
+      const prevCumulative = acc.length > 0 ? acc[acc.length - 1].cumulativeEnd : 0
+      const rotation = -90 + prevCumulative * 360
+      acc.push({ ...seg, rotation, cumulativeEnd: prevCumulative + seg.percent })
+      return acc
+    }, [] as (typeof colored[0] & { rotation: number; cumulativeEnd: number })[])
+  }, [colored])
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
@@ -59,9 +66,7 @@ export default function DonutChart({
             strokeDasharray={`${circumference}`}
           />
         )}
-        {colored.map((seg, i) => {
-          const rotation = -90 + cumulative * 360
-          cumulative += seg.percent
+        {segmentsWithRotation.map((seg, i) => {
           return (
             <circle
               key={i}
@@ -73,7 +78,7 @@ export default function DonutChart({
               strokeWidth={thickness}
               strokeLinecap="round"
               strokeDasharray={`${seg.percent * circumference} ${circumference}`}
-              transform={`rotate(${rotation} ${center} ${center})`}
+              transform={`rotate(${seg.rotation} ${center} ${center})`}
               className="transition-all duration-700 ease-out"
             />
           )
