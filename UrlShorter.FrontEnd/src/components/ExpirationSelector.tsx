@@ -18,7 +18,7 @@ export default function ExpirationSelector({
   error,
 }: ExpirationSelectorProps) {
   return (
-    <div className="flex flex-col gap-3 border-t border-hairline/50 pt-4 animate-fade-in">
+    <div className="flex flex-col gap-3 border-t border-hairline pt-4 animate-fade-in">
       <label className="text-xs font-semibold uppercase tracking-wider text-muted">
         Validade do Link
       </label>

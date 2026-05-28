@@ -1,15 +1,16 @@
+import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
 import { RootLayout } from './layouts/RootLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { ProtectedLayout } from './layouts/ProtectedLayout'
 
-import { Home } from './pages/Home'
-import { Login } from './pages/Login'
-import { Register } from './pages/Register'
-import { Dashboard } from './pages/Dashboard'
-import { Expired } from './pages/Expired'
-import { NotFoundPage } from './pages/NotFoundPage'
+const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })))
+const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })))
+const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })))
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })))
+const Expired = lazy(() => import('./pages/Expired').then(m => ({ default: m.Expired })))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 
 export const router = createBrowserRouter([
   {
