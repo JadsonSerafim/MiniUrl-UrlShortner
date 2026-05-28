@@ -35,6 +35,7 @@ export default function UrlShortener({
     resolver: zodResolver(shortenUrlSchema),
     defaultValues: {
       originalUrl: '',
+      name: '',
       expirationType: '30d',
       customValue: 1,
       customUnit: 'days',
@@ -52,11 +53,12 @@ export default function UrlShortener({
   const generatedShortUrl = shortCode ? `${backendBaseUrl}/${shortCode}` : ''
 
   const mutation = useMutation({
-    mutationFn: ({ url, expiresAt }: { url: string; expiresAt?: string }) =>
+    mutationFn: ({ url, expiresAt, name }: { url: string; expiresAt?: string; name?: string }) =>
       shortenUrl({
         originalUrl: url,
         userId,
         expiresAt,
+        name: name && name.trim() !== '' ? name : undefined,
       }),
     onSuccess: (code) => {
       setShortCode(code)
@@ -82,6 +84,7 @@ export default function UrlShortener({
     mutation.mutate({
       url: data.originalUrl,
       expiresAt: getExpiresAtDate(data, userId),
+      name: data.name,
     })
   }
 
@@ -117,6 +120,17 @@ export default function UrlShortener({
               </p>
             )}
           </div>
+
+          {userId && (
+            <div className="w-full flex flex-col gap-1.5 animate-fade-in">
+              <Input
+                label="Nome do link (opcional)"
+                placeholder="Dê um nome para identificar este link no seu painel (ex: Meu Blog, Portfólio)"
+                error={errors.name?.message}
+                {...register('name')}
+              />
+            </div>
+          )}
 
           {userId && (
             <ExpirationSelector

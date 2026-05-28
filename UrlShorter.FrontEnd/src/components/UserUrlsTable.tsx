@@ -22,7 +22,8 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
       const term = searchQuery.toLowerCase()
       const matchesSearch =
         url.shortCode.toLowerCase().includes(term) ||
-        url.originalUrl.toLowerCase().includes(term)
+        url.originalUrl.toLowerCase().includes(term) ||
+        (url.name && url.name.toLowerCase().includes(term))
 
       if (!matchesSearch) return false
 
@@ -181,7 +182,14 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                         </div>
                       </td>
                       <td className="px-4 py-3.5 max-w-[200px] truncate text-body" title={item.originalUrl}>
-                        {item.originalUrl}
+                        {item.name ? (
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <span className="font-semibold text-ink truncate" title={item.name}>{item.name}</span>
+                            <span className="text-[10px] text-muted truncate" title={item.originalUrl}>{item.originalUrl}</span>
+                          </div>
+                        ) : (
+                          item.originalUrl
+                        )}
                       </td>
                       <td className="px-4 py-3.5 text-muted whitespace-nowrap">
                         {formattedCreatedAt}
