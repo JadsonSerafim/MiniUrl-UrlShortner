@@ -27,7 +27,8 @@ export default function UrlSearchCombobox({ urls, value, onChange }: UrlSearchCo
     const q = query.toLowerCase()
     return (
       u.shortCode.toLowerCase().includes(q) ||
-      u.originalUrl.toLowerCase().includes(q)
+      u.originalUrl.toLowerCase().includes(q) ||
+      (u.name && u.name.toLowerCase().includes(q))
     )
   })
 
@@ -106,7 +107,9 @@ export default function UrlSearchCombobox({ urls, value, onChange }: UrlSearchCo
             <span className="font-mono text-sm text-primary font-semibold shrink-0">
               /{selected.shortCode}
             </span>
-            <span className="text-xs text-muted truncate">{getDomain(selected.originalUrl)}</span>
+            <span className="text-xs text-muted truncate" title={selected.name || selected.originalUrl}>
+              {selected.name ? selected.name : getDomain(selected.originalUrl)}
+            </span>
             <span className="ml-auto text-[11px] text-muted shrink-0">{selected.clickCount} cliques</span>
           </div>
         ) : (
@@ -187,7 +190,9 @@ export default function UrlSearchCombobox({ urls, value, onChange }: UrlSearchCo
                     </span>
 
                     {/* Domain */}
-                    <span className="flex-1 text-xs text-muted truncate">{domain}</span>
+                    <span className="flex-1 text-xs text-muted truncate" title={u.name ? `${u.name} (${u.originalUrl})` : u.originalUrl}>
+                      {u.name ? `${u.name} (${domain})` : domain}
+                    </span>
 
                     {/* Click count badge */}
                     <span className="shrink-0 inline-flex items-center gap-1 bg-surface text-muted text-[11px] px-2 py-0.5 rounded-full border border-hairline">

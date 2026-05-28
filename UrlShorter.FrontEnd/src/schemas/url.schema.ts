@@ -14,6 +14,7 @@ export const shortenUrlSchema = z.object({
   expirationType: z.enum(['1d', '7d', '30d', '365d', 'custom']),
   customValue: z.union([z.number(), z.literal('')]),
   customUnit: z.enum(['hours', 'days']),
+  name: z.string().optional(),
 }).refine(
   (data) => {
     if (data.expirationType === 'custom' && data.customValue === '') {
