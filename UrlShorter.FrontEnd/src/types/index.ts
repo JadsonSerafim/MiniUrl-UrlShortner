@@ -35,6 +35,7 @@ export interface ShortenUrlRequest {
   originalUrl: string
   userId?: string
   expiresAt?: string
+  name?: string
 }
 
 export type ShortenUrlResponse = string
@@ -44,6 +45,7 @@ export interface UrlItem {
   createdAt: string
   clickCount: number
   expiresAt?: string
+  name?: string
 }
 export interface DomainError {
   code: string

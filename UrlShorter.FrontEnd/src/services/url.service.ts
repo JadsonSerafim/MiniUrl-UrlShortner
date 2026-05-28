@@ -4,6 +4,7 @@ import axios from 'axios'
 
 export interface ApiShortenedUrl {
   id: string
+  name?: string
   originalUrl: { value: string } | string
   shortCode: string
   clickCount: number
@@ -46,6 +47,7 @@ export async function getMyUrls(): Promise<UrlItem[]> {
   try {
     const { data } = await api.get<ApiShortenedUrl[]>('/urls/my-urls')
     return data.map((item) => ({
+      name: item.name,
       shortCode: item.shortCode,
       originalUrl: typeof item.originalUrl === 'object' ? item.originalUrl.value : item.originalUrl,
       clickCount: item.clickCount,

@@ -56,9 +56,16 @@ export default function RecentLinksList({ urls }: RecentLinksListProps) {
                     <span className="text-mono font-medium text-ink truncate">{item.shortCode}</span>
                     <span className="text-[10px] text-muted">{formattedCreatedAt}</span>
                   </div>
-                  <p className="text-xs text-body truncate mt-1">
-                    {item.originalUrl}
-                  </p>
+                  <div className="text-xs text-body truncate mt-1">
+                    {item.name ? (
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="font-semibold text-ink truncate" title={item.name}>{item.name}</span>
+                        <span className="text-[10px] text-muted truncate" title={item.originalUrl}>{item.originalUrl}</span>
+                      </div>
+                    ) : (
+                      item.originalUrl
+                    )}
+                  </div>
 
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-1 text-[11px] text-muted">
