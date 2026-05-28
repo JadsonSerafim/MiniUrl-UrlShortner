@@ -26,6 +26,9 @@ public class ExtendUrlExpirationHandler : IRequestHandler<ExtendUrlExpirationCom
         if (url.UserId != request.UserId)
             return ErrorsUrl.NotFound;
 
+        if (!url.IsActive)
+            return ErrorsUrl.NotFound;
+
         var result = url.ExtendExpiration(request.Quantity, request.Unit);
         if (result.IsFailure)
             return result;
