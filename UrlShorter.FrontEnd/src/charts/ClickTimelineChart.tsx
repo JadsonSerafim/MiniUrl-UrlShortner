@@ -40,7 +40,7 @@ export default function ClickTimelineChart({ clicks, className = '' }: ClickTime
       <div className="relative flex items-end justify-between gap-[1px]" style={{ height: '96px' }}>
         <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
           {[0, 1, 2].map(i => (
-            <div key={i} className="border-b border-hairline/30 w-full" />
+            <div key={i} className="border-b border-hairline/40 w-full" />
           ))}
         </div>
 

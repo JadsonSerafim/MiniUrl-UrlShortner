@@ -54,16 +54,16 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
       .sort((a, b) => b.count - a.count)
 
     return { browsers, systems, uniqueClicksCount: uniqueIps.size }
-  }, [data?.clicks])
+  }, [data])
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
 
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
         <div className="flex items-center justify-between p-6 border-b border-hairline">
           <div>
             <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">Métricas de Acesso</span>
@@ -80,7 +80,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 min-h-[280px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 text-muted">
               <div className="w-8 h-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />

@@ -5,13 +5,19 @@ import UrlShortener from '../components/UrlShortener'
 import RecentLinksList from '../components/RecentLinksList'
 import UserUrlsTable from '../components/UserUrlsTable'
 import Card from '../components/Card'
+import Skeleton from '../components/Skeleton'
 import { getMyUrls, getUrlAnalytics } from '../services/url.service'
 import StatsProgressBarList from '../components/StatsProgressBarList'
 import DonutChart from '../charts/DonutChart'
 import ClickTimelineChart from '../charts/ClickTimelineChart'
 import { parseUserAgent } from '../utils/userAgent'
+import UrlSearchCombobox from '../components/UrlSearchCombobox'
+import PageHeader from '../components/PageHeader'
+import Tabs, { type TabItem } from '../components/Tabs'
+import StatCards, { type StatCard } from '../components/StatCards'
+import { LinkIcon, BarChartIcon, CheckCircleIcon, XCircleIcon } from '../components/icons/DashboardIcons'
 
-type TabType = 'resumo' | 'gerenciar' | 'graficos'
+type TabType = 'resumo' | 'links' | 'graficos'
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -33,177 +39,86 @@ export function Dashboard() {
   const now = useMemo(() => new Date(), [])
 
   const totalLinks = urls.length
-  const totalClicks = useMemo(() => urls.reduce((sum, item) => sum + item.clickCount, 0), [urls])
+  const totalClicks = useMemo(() => urls.reduce((sum, u) => sum + u.clickCount, 0), [urls])
+  const activeLinks = useMemo(() => urls.filter(u => !u.expiresAt || new Date(u.expiresAt) > now).length, [urls, now])
+  const expiredLinks = useMemo(() => urls.filter(u => u.expiresAt && new Date(u.expiresAt) <= now).length, [urls, now])
 
-  const activeLinks = useMemo(() => {
-    return urls.filter(u => !u.expiresAt || new Date(u.expiresAt) > now).length
-  }, [urls, now])
-
-  const expiredLinks = useMemo(() => {
-    return urls.filter(u => u.expiresAt && new Date(u.expiresAt) <= now).length
-  }, [urls, now])
-
-  const topLinks = useMemo(() => {
-    return [...urls]
+  const topLinks = useMemo(() =>
+    [...urls]
       .sort((a, b) => b.clickCount - a.clickCount)
       .slice(0, 5)
-      .map(item => ({
-        name: `/${item.shortCode} (${item.originalUrl.substring(0, 28)}${item.originalUrl.length > 28 ? '...' : ''})`,
-        count: item.clickCount
-      }))
-  }, [urls])
+      .map(u => ({
+        name: `/${u.shortCode} (${u.originalUrl.substring(0, 28)}${u.originalUrl.length > 28 ? '...' : ''})`,
+        count: u.clickCount,
+      })),
+    [urls])
 
-  const maxTopClicks = useMemo(() => {
-    return urls.length > 0 ? Math.max(...urls.map(u => u.clickCount), 1) : 1
-  }, [urls])
+  const maxTopClicks = useMemo(() =>
+    urls.length > 0 ? Math.max(...urls.map(u => u.clickCount), 1) : 1,
+    [urls])
 
   const analyticsStats = useMemo(() => {
-    if (!analyticsData?.clicks) {
-      return {
-        browsers: [] as { name: string; count: number }[],
-        systems: [] as { name: string; count: number }[],
-        uniqueClicksCount: 0,
-      }
+    if (!analyticsData?.clicks) return { browsers: [], systems: [], uniqueClicksCount: 0 } as {
+      browsers: { name: string; count: number }[]
+      systems: { name: string; count: number }[]
+      uniqueClicksCount: number
     }
-
     const browserMap: Record<string, number> = {}
     const systemMap: Record<string, number> = {}
     const uniqueIps = new Set<string>()
-
-    analyticsData.clicks.forEach((click) => {
+    analyticsData.clicks.forEach(click => {
       const { browser, os } = parseUserAgent(click.userAgent)
       browserMap[browser] = (browserMap[browser] || 0) + 1
       systemMap[os] = (systemMap[os] || 0) + 1
-      if (click.ipAddress) {
-        uniqueIps.add(click.ipAddress)
-      }
+      if (click.ipAddress) uniqueIps.add(click.ipAddress)
     })
+    return {
+      browsers: Object.entries(browserMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
+      systems: Object.entries(systemMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
+      uniqueClicksCount: uniqueIps.size,
+    }
+  }, [analyticsData])
 
-    const browsers = Object.entries(browserMap)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
+  const statCards: StatCard[] = [
+    { label: 'Total de Links', value: totalLinks, valueColor: 'text-ink', icon: <LinkIcon />, iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-400', borderColor: 'border-indigo-500/20' },
+    { label: 'Cliques Acumulados', value: totalClicks, valueColor: 'text-ink', icon: <BarChartIcon />, iconBg: 'bg-blue-500/10', iconColor: 'text-blue-400', borderColor: 'border-blue-500/20' },
+    { label: 'Links Ativos', value: activeLinks, valueColor: 'text-emerald-400', icon: <CheckCircleIcon />, iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-400', borderColor: 'border-emerald-500/20' },
+    { label: 'Links Expirados', value: expiredLinks, valueColor: 'text-red-400', icon: <XCircleIcon />, iconBg: 'bg-red-500/10', iconColor: 'text-red-400', borderColor: 'border-red-500/20' },
+  ]
 
-    const systems = Object.entries(systemMap)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-
-    return { browsers, systems, uniqueClicksCount: uniqueIps.size }
-  }, [analyticsData?.clicks])
+  const tabs: TabItem<TabType>[] = [
+    { key: 'resumo', label: 'Resumo' },
+    { key: 'links', label: 'Meus Links', badge: totalLinks },
+    { key: 'graficos', label: 'Gráficos & Métricas' },
+  ]
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-12 flex flex-col gap-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-medium tracking-tight text-ink">Dashboard</h1>
-          <p className="text-sm text-body mt-1">
-            Bem-vindo de volta, <span className="text-ink font-semibold">{user?.name}</span>.
-          </p>
-        </div>
+    <section className="mx-auto max-w-6xl px-4 py-10 flex flex-col gap-8">
+      <PageHeader
+        title="Painel de Controle"
+        subtitle={<>Bem-vindo de volta, <span className="text-ink font-semibold">{user?.name}</span>.</>}
+      />
 
-        <div className="flex border-b border-hairline/60 gap-6" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'resumo'}
-            aria-controls="panel-resumo"
-            onClick={() => setActiveTab('resumo')}
-            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'resumo' ? 'text-primary' : 'text-muted hover:text-ink'
-              }`}
-          >
-            <span>Resumo</span>
-            {activeTab === 'resumo' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full animate-fade-in" />
-            )}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'gerenciar'}
-            aria-controls="panel-gerenciar"
-            onClick={() => setActiveTab('gerenciar')}
-            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center gap-1.5 ${activeTab === 'gerenciar' ? 'text-primary' : 'text-muted hover:text-ink'
-              }`}
-          >
-            <span>Gerenciar Links</span>
-            <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-semibold leading-none ${activeTab === 'gerenciar' ? 'bg-primary/20 text-primary' : 'bg-surface-soft text-muted'
-              }`}>
-              {totalLinks}
-            </span>
-            {activeTab === 'gerenciar' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full animate-fade-in" />
-            )}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'graficos'}
-            aria-controls="panel-graficos"
-            onClick={() => setActiveTab('graficos')}
-            className={`pb-3 text-sm font-semibold transition-colors relative flex items-center ${activeTab === 'graficos' ? 'text-primary' : 'text-muted hover:text-ink'
-              }`}
-          >
-            <span>Gráficos & Métricas</span>
-            {activeTab === 'graficos' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full animate-fade-in" />
-            )}
-          </button>
-        </div>
-      </div>
+      <Tabs
+        tabs={tabs}
+        activeTab={activeTab}
+        onChange={(key) => setActiveTab(key as TabType)}
+      />
 
       {activeTab === 'resumo' && (
-        <div id="panel-resumo" role="tabpanel" className="flex flex-col gap-8 animate-fade-in">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card compact className="p-5 bg-surface/20 border-hairline/40 flex flex-col gap-1 text-left">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-muted">Total de Links</span>
-              <span className="text-3xl font-extrabold text-ink leading-tight">{totalLinks}</span>
-            </Card>
-            <Card compact className="p-5 bg-surface/20 border-hairline/40 flex flex-col gap-1 text-left">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-muted">Cliques Acumulados</span>
-              <span className="text-3xl font-extrabold text-ink leading-tight">{totalClicks}</span>
-            </Card>
-            <Card compact className="p-5 bg-surface/20 border-hairline/40 flex flex-col gap-1 text-left">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-muted">Links Ativos</span>
-              <span className="text-3xl font-extrabold text-green-400 leading-tight">{activeLinks}</span>
-            </Card>
-            <Card compact className="p-5 bg-surface/20 border-hairline/40 flex flex-col gap-1 text-left">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-muted">Links Expirados</span>
-              <span className="text-3xl font-extrabold text-red-400 leading-tight">{expiredLinks}</span>
-            </Card>
-          </div>
+        <div id="panel-resumo" role="tabpanel" className="flex flex-col gap-6 animate-fade-in">
+          <StatCards cards={statCards} isLoading={isLoading} />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-            <div className="md:col-span-2 flex flex-col gap-6">
-              <UrlShortener
-                userId={user?.id}
-                label="Encurtar um novo link"
-                buttonText="Encurtar"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <div className="md:col-span-2">
+              <UrlShortener userId={user?.id} label="Encurtar um novo link" buttonText="Encurtar Agora" />
             </div>
-
-            <div className="flex flex-col gap-6">
-              <Card className="border border-hairline bg-surface-soft p-5 flex flex-col gap-2 text-left">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-ink flex items-center gap-1.5">
-                  <span>Sua Conta</span>
-                  <span className="text-primary font-normal text-[10px] bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded-full">Ativa</span>
-                </h3>
-                <p className="text-xs text-muted leading-relaxed">
-                  Seus links podem durar até um ano e você possui um limite de até 1.000 URLs ativas.
-                </p>
-              </Card>
-
+            <div>
               {isLoading ? (
-                <div className="flex flex-col gap-4">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-muted px-1 text-left">
-                    Seus links recentes
-                  </h2>
-                  <div className="flex flex-col gap-3">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="animate-shimmer rounded-xl h-28 border border-hairline"
-                      />
-                    ))}
-                  </div>
+                <div className="flex flex-col gap-3">
+                  {[1, 2].map(i => (
+                    <div key={i} className="animate-shimmer rounded-xl h-24 border border-hairline" />
+                  ))}
                 </div>
               ) : (
                 <RecentLinksList urls={urls} />
@@ -213,10 +128,17 @@ export function Dashboard() {
         </div>
       )}
 
-      {activeTab === 'gerenciar' && (
-        <div id="panel-gerenciar" role="tabpanel" className="w-full animate-fade-in">
+      {activeTab === 'links' && (
+        <div id="panel-links" role="tabpanel" className="animate-fade-in">
           {isLoading ? (
-            <div className="animate-shimmer rounded-xl h-64 border border-hairline" />
+            <div className="flex flex-col gap-4">
+              <div className="rounded-lg border border-hairline overflow-hidden">
+                <Skeleton className="h-10 rounded-none" />
+                {[1, 2, 3, 4, 5].map(i => (
+                  <Skeleton key={i} className="h-12 rounded-none border-t border-hairline" />
+                ))}
+              </div>
+            </div>
           ) : (
             <UserUrlsTable urls={urls} />
           )}
@@ -241,23 +163,14 @@ export function Dashboard() {
                 <p className="text-xs text-muted">Selecione uma de suas URLs para ver detalhes de acessos, dispositivos e navegadores</p>
               </div>
 
-              <div className="w-full">
-                <select
-                  value={selectedAnalyticsCode}
-                  onChange={(e) => setSelectedAnalyticsCode(e.target.value)}
-                  className="w-full bg-surface-soft border border-hairline rounded-lg px-4 py-2.5 text-xs text-ink focus:border-primary outline-none cursor-pointer"
-                >
-                  <option value="">Selecione um link encurtado...</option>
-                  {urls.map(u => (
-                    <option key={u.shortCode} value={u.shortCode}>
-                      /{u.shortCode} → {u.originalUrl.substring(0, 45)}{u.originalUrl.length > 45 ? '...' : ''} ({u.clickCount} cliques)
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <UrlSearchCombobox
+                urls={urls}
+                value={selectedAnalyticsCode}
+                onChange={setSelectedAnalyticsCode}
+              />
 
               {!selectedAnalyticsCode ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-surface-soft gap-2">
+                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl gap-2">
                   <svg className="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
                   </svg>
@@ -270,7 +183,7 @@ export function Dashboard() {
                   <p className="text-xs font-medium">Carregando telemetria...</p>
                 </div>
               ) : !analyticsData || analyticsData.clicks.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl bg-surface-soft gap-2">
+                <div className="flex flex-col items-center justify-center py-16 text-muted border border-dashed border-hairline rounded-xl gap-2">
                   <svg className="w-8 h-8 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -292,31 +205,18 @@ export function Dashboard() {
                   </div>
 
                   <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted">
-                      Cliques ao Longo do Tempo
-                    </h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted">Cliques ao Longo do Tempo</h4>
                     <ClickTimelineChart clicks={analyticsData.clicks} />
                   </Card>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">
-                        Navegadores
-                      </h4>
-                      <DonutChart
-                        segments={analyticsStats.browsers.map(b => ({ name: b.name, count: b.count }))}
-                        size={140}
-                      />
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">Navegadores</h4>
+                      <DonutChart segments={analyticsStats.browsers.map(b => ({ name: b.name, count: b.count }))} size={140} />
                     </Card>
-
                     <Card compact className="bg-surface-soft border border-hairline p-4 flex flex-col gap-3">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">
-                        Sistemas Operacionais
-                      </h4>
-                      <DonutChart
-                        segments={analyticsStats.systems.map(s => ({ name: s.name, count: s.count }))}
-                        size={140}
-                      />
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted px-1">Sistemas Operacionais</h4>
+                      <DonutChart segments={analyticsStats.systems.map(s => ({ name: s.name, count: s.count }))} size={140} />
                     </Card>
                   </div>
                 </div>

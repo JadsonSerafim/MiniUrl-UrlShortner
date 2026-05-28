@@ -1,5 +1,6 @@
 import { api } from './api'
 import type { ShortenUrlRequest, UrlItem } from '../types'
+import axios from 'axios'
 
 export interface ApiShortenedUrl {
   id: string
@@ -51,8 +52,8 @@ export async function getMyUrls(): Promise<UrlItem[]> {
       expiresAt: item.expiresAt,
       createdAt: item.createdAt,
     }))
-  } catch (err: any) {
-    if (err.response?.status === 404) {
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
       return []
     }
     throw err
