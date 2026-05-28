@@ -72,3 +72,15 @@ export async function getUrlAnalytics(shortCode: string, userId: string): Promis
   const { data } = await api.get<UrlAnalytics>(`/urls/${shortCode}/analytics`, { params: sanitizedPayload })
   return data
 }
+
+/**
+ * PATCH /api/urls/{shortCode}/extend
+ * Estende a data de expiração de uma URL.
+ */
+export async function extendUrlExpiration(
+  shortCode: string,
+  quantity: number,
+  unit: 'days' | 'months'
+): Promise<void> {
+  await api.patch(`/urls/${shortCode}/extend`, { quantity, unit })
+}

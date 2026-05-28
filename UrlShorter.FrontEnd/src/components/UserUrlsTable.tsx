@@ -3,6 +3,7 @@ import type { UrlItem } from '../types'
 import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
 import UrlAnalyticsModal from './UrlAnalyticsModal'
+import ExtendExpirationModal from './ExtendExpirationModal'
 
 interface UserUrlsTableProps {
   urls: UrlItem[]
@@ -11,6 +12,7 @@ interface UserUrlsTableProps {
 export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
   const { copy } = useClipboard()
   const [selectedShortCode, setSelectedShortCode] = useState<string | null>(null)
+  const [extendShortCode, setExtendShortCode] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most-clicked' | 'least-clicked'>('newest')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all')
@@ -118,7 +120,7 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                 <th className="px-4 py-3">Criado em</th>
                 <th className="px-4 py-3">Expiração</th>
                 <th className="px-4 py-3 text-center">Cliques</th>
-                <th className="px-4 py-3 text-right">Ações</th>
+                <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-hairline/40 text-xs">
@@ -196,25 +198,35 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         {isExpired ? (
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-400/10 text-red-400">
+                          <button
+                            type="button"
+                            onClick={() => setExtendShortCode(item.shortCode)}
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 transition-colors"
+                            title="Expirado. Clique para estender."
+                          >
                             Expirado
-                          </span>
+                          </button>
                         ) : (
-                          <span className="text-muted" title={item.expiresAt ? new Date(item.expiresAt).toLocaleString('pt-BR') : undefined}>
+                          <button
+                            type="button"
+                            onClick={() => setExtendShortCode(item.shortCode)}
+                            className="text-muted hover:text-primary transition-colors cursor-pointer text-left font-normal"
+                            title={item.expiresAt ? `Expira em ${new Date(item.expiresAt).toLocaleString('pt-BR')}. Clique para estender.` : 'Sem expiração. Clique para definir.'}
+                          >
                             {expiresText}
-                          </span>
+                          </button>
                         )}
                       </td>
                       <td className="px-4 py-3.5 text-center font-semibold text-ink">
                         {item.clickCount}
                       </td>
-                      <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                        <div className="flex items-center justify-end gap-3">
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-3">
                           <a
                             href={fullUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-muted hover:text-ink transition-colors"
+                            className="text-xs text-primary font-semibold hover:text-primary-active transition-colors"
                           >
                             Acessar ↗
                           </a>
@@ -224,6 +236,13 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                             className="text-xs text-primary font-semibold hover:text-primary-active transition-colors flex items-center gap-1"
                           >
                             <span>Métricas</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setExtendShortCode(item.shortCode)}
+                            className="text-xs text-primary font-semibold hover:text-primary-active transition-colors flex items-center gap-1"
+                          >
+                            <span>Estender</span>
                           </button>
                         </div>
                       </td>
@@ -241,6 +260,14 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
           shortCode={selectedShortCode}
           isOpen={!!selectedShortCode}
           onClose={() => setSelectedShortCode(null)}
+        />
+      )}
+
+      {extendShortCode && (
+        <ExtendExpirationModal
+          shortCode={extendShortCode}
+          isOpen={!!extendShortCode}
+          onClose={() => setExtendShortCode(null)}
         />
       )}
     </Card>
