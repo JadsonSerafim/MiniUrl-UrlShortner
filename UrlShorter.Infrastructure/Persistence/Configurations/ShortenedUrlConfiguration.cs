@@ -25,6 +25,7 @@ public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
             .IsRequired();
 
         builder.HasIndex(u => u.ShortCode)
+            .HasFilter("\"IsActive\" = true")
             .IsUnique();
 
         builder.Property(u => u.ExpiresAt)

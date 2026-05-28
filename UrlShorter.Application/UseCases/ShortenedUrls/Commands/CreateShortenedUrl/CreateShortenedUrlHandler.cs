@@ -47,7 +47,7 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
         }
 
         string shortCode = _shortCodeGenerator.Generate();
-        while(await _shortenedUrlRepository.ShortCodeExistsAsync(shortCode, cancellationToken))
+        while(await _shortenedUrlRepository.ShortCodeExistsAndActiveAsync(shortCode, cancellationToken))
         {
             if(maxTries == 0)
             {
@@ -57,6 +57,13 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
             shortCode = _shortCodeGenerator.Generate();
 
             maxTries--;
+        }
+
+        var existingExpiredUrl = await _shortenedUrlRepository.GetByShortCodeAsync(shortCode);
+        if (existingExpiredUrl != null && existingExpiredUrl.IsActive)
+        {
+            existingExpiredUrl.Deactivate();
+            await _shortenedUrlRepository.UpdateAsync(existingExpiredUrl, cancellationToken);
         }
 
         var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt, activeCount, request.Name);

@@ -24,6 +24,16 @@ public class ShortenedUrlRepository : BaseRepository<ShortenedUrl>, IShortenedUr
         return _context.ShortenedUrls.AnyAsync(x => x.ShortCode == shortCode, cancellationToken);
     }
 
+    public Task<bool> ShortCodeExistsAndActiveAsync(string shortCode, CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        return _context.ShortenedUrls.AnyAsync(
+            x => x.ShortCode == shortCode && 
+                 x.IsActive && 
+                 (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > now), 
+            cancellationToken);
+    }
+
     public Task<List<ShortenedUrl>> GetAllUserUrlsAsync(Guid userId, CancellationToken cancellationToken)
     {
         return _context.ShortenedUrls
