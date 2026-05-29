@@ -25,4 +25,8 @@ public static class ErrorsUser
     public static readonly Error EmailAlreadyExists = Error.Conflict(
         "User.EmailAlreadyExists", 
         "Este email já está cadastrado");
+
+    public static readonly Error TokenInvalidOrExpired = Error.Unauthorized(
+        "Token.Invalid",
+        "Refresh token inválido ou expirado.");
 }
