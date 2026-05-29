@@ -68,6 +68,8 @@ export function Login() {
       footerText="Não tem conta?"
       footerLink="/register"
       footerLinkText="Cadastre-se"
+      extraLink="/forgot-password"
+      extraLinkText="Esqueceu a senha?"
     />
   )
 }
