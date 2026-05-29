@@ -1,4 +1,8 @@
-// Adicione isto ao final do arquivo ../UrlShorter.FrontEnd/src/types/index.ts ou verifique se já existe algo similar
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export interface ForgotPasswordRequest {
   email: string;
@@ -25,11 +29,13 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
+  id: string;
+  name: string;
+  email: string;
   token: {
     token: string;
     expiresAt: string;
   };
-  name: string;
 }
 
 export interface RegisterRequest {
