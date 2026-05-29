@@ -22,6 +22,8 @@ interface AuthFormProps {
   footerText?: string
   footerLink?: string
   footerLinkText?: string
+  extraLink?: string
+  extraLinkText?: string
 }
 
 export function AuthForm({
@@ -34,6 +36,8 @@ export function AuthForm({
   footerText,
   footerLink,
   footerLinkText,
+  extraLink,
+  extraLinkText,
 }: AuthFormProps) {
   return (
     <Card>
@@ -61,7 +65,17 @@ export function AuthForm({
           />
         ))}
 
-        {/* Erro global do servidor */}
+        {extraLink && extraLinkText && (
+          <div className="flex justify-end">
+            <Link
+              to={extraLink}
+              className="text-xs text-primary hover:text-primary-active transition-colors"
+            >
+              {extraLinkText}
+            </Link>
+          </div>
+        )}
+
         {error && (
           <p className="text-sm text-red-400 text-center animate-fade-in" role="alert">
             {error}
