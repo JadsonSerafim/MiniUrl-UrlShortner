@@ -41,6 +41,9 @@ public static class DependencyInjection
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
         services.AddSingleton<ClickLogFallbackRepository>();
 
+        services.AddHealthChecks()
+            .AddNpgSql(configuration.GetConnectionString("DefaultConnection")!)
+            .AddRedis(configuration.GetConnectionString("Redis")!);
 
         return services;
     }
