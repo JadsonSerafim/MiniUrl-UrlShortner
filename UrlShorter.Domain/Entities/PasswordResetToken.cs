@@ -18,7 +18,11 @@ public class PasswordResetToken : Entity
         IsUsed = false;
     }
 
-    private PasswordResetToken() { }
+    private PasswordResetToken()
+    {
+        Code = "";
+        ExpiresAt = DateTime.MinValue;
+    }
 
     public static PasswordResetToken Create(Guid userId)
     {
