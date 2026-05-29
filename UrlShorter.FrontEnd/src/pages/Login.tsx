@@ -23,9 +23,10 @@ export function Login() {
     mutationFn: () => loginUser({ email, password }),
 
     onSuccess: (data) => {
-      login(data.token.token, {
+      login({
+        id: data.id,
         name: data.name,
-        email,
+        email: data.email,
       })
       navigate('/dashboard', { replace: true })
     },
