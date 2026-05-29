@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using UrlShorter.API.Middlewares;
 using UrlShorter.Application;
 using UrlShorter.Infrastructure;
@@ -5,22 +6,10 @@ using UrlShorter.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplication();
-
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -28,13 +17,27 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-app.UseCors("CorsPolicy");
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+app.UseCors(policy =>
+{
+    var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+    policy.WithOrigins(frontendUrl)
+          .AllowAnyHeader()
+          .AllowAnyMethod();
+});
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.UseMiddleware<GuestRateLimitMiddleware>();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
