@@ -1,63 +1,43 @@
+// Adicione isto ao final do arquivo ../UrlShorter.FrontEnd/src/types/index.ts ou verifique se já existe algo similar
 
-export interface User {
-  id: string
-  name: string
-  email: string
+export interface ForgotPasswordRequest {
+  email: string;
 }
 
-
-
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface LoginResponse {
-  name: string
-  token: {
-    token: string
-    expiresAt: string
-  }
-}
-
-export interface RegisterRequest {
-  name: string
-  email: string
-  password: string
-}
-
-export interface RegisterResponse {
-  id: string
-  name: string
-  email: string
-}
-export interface ShortenUrlRequest {
-  originalUrl: string
-  userId?: string
-  expiresAt?: string
-  name?: string
-}
-
-export type ShortenUrlResponse = string
-export interface UrlItem {
-  shortCode: string
-  originalUrl: string
-  createdAt: string
-  clickCount: number
-  expiresAt?: string
-  name?: string
-}
-export interface DomainError {
-  code: string
-  description: string
-  type?: number
+export interface ResetPasswordRequest {
+  email: string;
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface ApiError {
-  title?: string
-  status?: number
-  errors?: DomainError[]
-  code?: string
-  description?: string
+  code: string;
+  description: string;
+  
+  type: number;
+  errors?: Record<string, string[]>;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: {
+    token: string;
+    expiresAt: string;
+  };
+  name: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  id: string;
+}

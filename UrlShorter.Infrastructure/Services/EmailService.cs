@@ -51,9 +51,13 @@ public class EmailService : IEmailService
             await smtp.ConnectAsync(
                 _emailSettings.SmtpServer,
                 _emailSettings.SmtpPort,
-                SecureSocketOptions.StartTls);
+                SecureSocketOptions.Auto);
 
-            await smtp.AuthenticateAsync(_emailSettings.SmtpUser, _emailSettings.SmtpPass);
+            if (!string.IsNullOrWhiteSpace(_emailSettings.SmtpUser))
+            {
+                await smtp.AuthenticateAsync(_emailSettings.SmtpUser, _emailSettings.SmtpPass);
+            }
+
             await smtp.SendAsync(email);
         }
         catch (Exception ex)
