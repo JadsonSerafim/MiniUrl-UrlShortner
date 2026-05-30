@@ -80,7 +80,7 @@ export default {
       
       boxShadow: {
         'soft': '0 4px 12px rgba(0, 0, 0, 0.25)',
-        'card': '0 0 0 1px rgba(255, 255, 255, 0.06)',
+        'card': '0 0 0 1px rgba(0, 0, 0, 0.06)',
       },
 
       

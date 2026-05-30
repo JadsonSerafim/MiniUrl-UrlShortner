@@ -76,7 +76,7 @@ export default function DonutChart({
               fill="none"
               stroke={seg.color}
               strokeWidth={thickness}
-              strokeLinecap="round"
+              strokeLinecap="butt"
               strokeDasharray={`${seg.percent * circumference} ${circumference}`}
               transform={`rotate(${seg.rotation} ${center} ${center})`}
               className="transition-all duration-700 ease-out"

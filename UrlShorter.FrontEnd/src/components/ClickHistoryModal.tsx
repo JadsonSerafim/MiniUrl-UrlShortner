@@ -1,5 +1,6 @@
 import type { ClickLog } from '../services/url.service'
 import { parseUserAgent } from '../utils/userAgent'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface ClickHistoryModalProps {
     clicks: ClickLog[]
@@ -16,11 +17,13 @@ export default function ClickHistoryModal({
 }: ClickHistoryModalProps) {
     if (!isOpen) return null
 
+    const modalRef = useFocusTrap(isOpen)
+
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
             <div className="absolute inset-0" onClick={onClose} />
 
-            <div className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
+            <div ref={modalRef} role="dialog" aria-modal="true" aria-label={`Histórico de cliques do link ${shortCode}`} className="relative w-full max-w-2xl max-h-[80vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
                 <div className="flex items-center justify-between p-6 border-b border-hairline">
                     <div>
                         <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">
@@ -59,7 +62,7 @@ export default function ClickHistoryModal({
                                                     <td className="p-3 text-mono">
                                                         {new Date(click.occurredAt).toLocaleString('pt-BR')}
                                                     </td>
-                                                    <td className="p-3 text-mono">{click.ipAddress}</td>
+                                                    <td className="p-3 text-mono">{click.ipAddress || '—'}</td>
                                                     <td className="p-3 truncate max-w-[200px]" title={click.userAgent}>
                                                         {browser} no {os}
                                                     </td>
