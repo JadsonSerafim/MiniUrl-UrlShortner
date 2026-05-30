@@ -32,6 +32,28 @@ export function Register() {
 
   const handleSubmit = () => {
     setServerError(undefined)
+
+    if (!name.trim()) {
+      setServerError('O nome é obrigatório.')
+      return
+    }
+    if (!email.trim()) {
+      setServerError('O email é obrigatório.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setServerError('Insira um email válido.')
+      return
+    }
+    if (!password) {
+      setServerError('A senha é obrigatória.')
+      return
+    }
+    if (password.length < 6) {
+      setServerError('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+
     mutation.mutate()
   }
 

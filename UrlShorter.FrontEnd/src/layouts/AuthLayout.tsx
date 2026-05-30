@@ -9,7 +9,7 @@ export function AuthLayout() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-24">
+    <div className="flex min-h-screen items-center justify-center px-4 py-12 sm:py-24">
       <div className="w-full max-w-sm animate-fade-in">
         <Outlet />
       </div>

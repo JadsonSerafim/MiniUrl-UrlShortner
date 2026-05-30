@@ -47,3 +47,19 @@ export interface RegisterRequest {
 export interface RegisterResponse {
   id: string;
 }
+
+export interface UrlItem {
+  name?: string
+  shortCode: string
+  originalUrl: string
+  clickCount: number
+  expiresAt?: string
+  createdAt: string
+}
+
+export interface ShortenUrlRequest {
+  originalUrl: string
+  userId?: string
+  expiresAt?: string
+  name?: string
+}

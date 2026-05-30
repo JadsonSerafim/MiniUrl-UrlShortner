@@ -89,6 +89,10 @@ export default function UrlSearchCombobox({ urls, value, onChange }: UrlSearchCo
     <div ref={containerRef} className="relative w-full">
       {/* Input trigger */}
       <div
+        role="combobox"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-label="Selecionar URL para analisar"
         className={`flex items-center gap-2 w-full bg-surface border rounded-xl px-4 h-11 cursor-text transition-all duration-200 ${
           open
             ? 'border-primary shadow-[0_0_0_3px_rgba(99,102,241,0.12)]'
