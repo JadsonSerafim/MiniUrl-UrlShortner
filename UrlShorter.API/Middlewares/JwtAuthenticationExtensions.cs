@@ -32,6 +32,16 @@ public static class JwtAuthenticationExtensions
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
+
+            // Adicionando lógica para ler o token do Cookie 'accessToken'
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Token = context.Request.Cookies["accessToken"];
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         return services;

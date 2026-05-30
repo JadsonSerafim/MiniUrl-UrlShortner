@@ -201,9 +201,12 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
                           <button
                             type="button"
                             onClick={() => setExtendShortCode(item.shortCode)}
-                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 transition-colors"
+                            className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 transition-colors"
                             title="Expirado. Clique para estender."
                           >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                             Expirado
                           </button>
                         ) : (

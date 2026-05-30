@@ -13,12 +13,14 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
     private readonly IUserRepository _userRepository;
     private readonly ITokenProvider _tokenProvider;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IUnitOfWork _unitOfWork;
     
-    public LoginCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenProvider tokenProvider)
+    public LoginCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenProvider tokenProvider, IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _tokenProvider = tokenProvider;
+        _unitOfWork = unitOfWork;
     }
     
     public async Task<Result<LoginResponse>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -31,6 +33,12 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginRes
             return ErrorsUser.InvalidCredentials;
         
         var token = _tokenProvider.Generate(user);
-        return new LoginResponse(user.Name, token);
+
+        var refreshToken = Guid.NewGuid().ToString();
+        user.UpdateRefreshToken(refreshToken, DateTime.UtcNow.AddDays(7));
+        
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new LoginResponse(user.Id, user.Name, user.Email.Value, refreshToken, token);
     }
 }

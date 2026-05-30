@@ -23,9 +23,10 @@ export function Login() {
     mutationFn: () => loginUser({ email, password }),
 
     onSuccess: (data) => {
-      login(data.token.token, {
+      login({
+        id: data.id,
         name: data.name,
-        email,
+        email: data.email,
       })
       navigate('/dashboard', { replace: true })
     },
@@ -37,6 +38,20 @@ export function Login() {
 
   const handleSubmit = () => {
     setServerError(undefined)
+
+    if (!email.trim()) {
+      setServerError('O email é obrigatório.')
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setServerError('Insira um email válido.')
+      return
+    }
+    if (!password) {
+      setServerError('A senha é obrigatória.')
+      return
+    }
+
     mutation.mutate()
   }
 

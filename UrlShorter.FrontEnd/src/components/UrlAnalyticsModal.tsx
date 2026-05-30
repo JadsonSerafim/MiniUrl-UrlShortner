@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getUrlAnalytics } from '../services/url.service'
 import { parseUserAgent } from '../utils/userAgent'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import Card from './Card'
 import ClickHistoryModal from './ClickHistoryModal'
 import StatsProgressBarList from './StatsProgressBarList'
@@ -16,6 +17,7 @@ interface UrlAnalyticsModalProps {
 export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAnalyticsModalProps) {
   const { user } = useAuth()
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const modalRef = useFocusTrap(isOpen)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['urlAnalytics', shortCode, user?.id],
@@ -63,7 +65,7 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
 
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-label={`Métricas do link ${shortCode}`} className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
         <div className="flex items-center justify-between p-6 border-b border-hairline">
           <div>
             <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">Métricas de Acesso</span>

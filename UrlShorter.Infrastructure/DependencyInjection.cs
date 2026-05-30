@@ -39,7 +39,9 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
-        services.AddSingleton<ClickLogFallbackRepository>();
+        
+        var sqlitePath = configuration["FallbackSqlitePath"] ?? "Data Source=fallback_clicks.db";
+        services.AddSingleton(new ClickLogFallbackRepository(sqlitePath));
 
         services.AddHealthChecks()
             .AddNpgSql(configuration.GetConnectionString("DefaultConnection")!)
