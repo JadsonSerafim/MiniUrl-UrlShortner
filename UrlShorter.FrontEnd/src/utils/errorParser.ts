@@ -21,8 +21,12 @@ export function extractApiError(
     return statusMessages[status]
   }
 
-  if (errorData?.errors && errorData.errors.length > 0) {
-    return errorData.errors[0].description
+  if (errorData?.errors) {
+    const firstKey = Object.keys(errorData.errors)[0]
+    const messages = firstKey ? errorData.errors[firstKey] : undefined
+    if (messages && messages.length > 0) {
+      return messages[0]
+    }
   }
  
   if (errorData?.description) {

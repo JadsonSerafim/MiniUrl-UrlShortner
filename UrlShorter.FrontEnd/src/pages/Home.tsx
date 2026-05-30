@@ -19,8 +19,6 @@ export function Home() {
         <div className="flex flex-col gap-4">
           <h1 className="text-4xl sm:text-display-sm md:text-display-md text-ink font-light tracking-tight">
             Encurtador de URLs
-            <span className="text-primary font-normal">
-            </span>
           </h1>
           <p className="text-base sm:text-body-md text-body max-w-xl mx-auto">
             Gere URLs curtas de forma gratuita, ou cadastre-se para ter links permanentes e monitorar seus acessos.

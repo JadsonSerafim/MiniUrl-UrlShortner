@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { extendUrlExpiration } from '../services/url.service'
 import { extractApiError } from '../utils/errorParser'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 import Button from './Button'
 import Input from './Input'
 
@@ -30,6 +31,8 @@ export default function ExtendExpirationModal({ shortCode, isOpen, onClose }: Ex
 
   if (!isOpen) return null
 
+  const modalRef = useFocusTrap(isOpen)
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setErrorMessage(null)
@@ -40,7 +43,7 @@ export default function ExtendExpirationModal({ shortCode, isOpen, onClose }: Ex
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
       <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-md rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
+      <div ref={modalRef} role="dialog" aria-modal="true" aria-label={`Estender validade do link ${shortCode}`} className="relative w-full max-w-md rounded-2xl border border-hairline bg-surface text-ink shadow-2xl overflow-hidden animate-slide-up">
         <div className="flex items-center justify-between p-6 border-b border-hairline">
           <div>
             <span className="text-[10px] uppercase font-semibold tracking-wider text-primary">Estender Validade</span>
@@ -75,8 +78,9 @@ export default function ExtendExpirationModal({ shortCode, isOpen, onClose }: Ex
             />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-body">Unidade</label>
+              <label htmlFor="extend-unit" className="text-sm font-medium text-body">Unidade</label>
               <select
+                id="extend-unit"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value as 'days' | 'months')}
                 className="input-base w-full h-11"

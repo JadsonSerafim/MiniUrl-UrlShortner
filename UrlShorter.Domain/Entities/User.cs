@@ -12,6 +12,9 @@ public sealed class User : Entity
 
     public Password Password { get; private set; }
 
+    public string? RefreshToken { get; private set; }
+    public DateTime? RefreshTokenExpiryTime { get; private set; }
+
     private User() 
     {
         Email = null!;
@@ -72,6 +75,20 @@ public sealed class User : Entity
     public void UpdateEmail(Email newEmail)
     {
         Email = newEmail;
+        Update();
+    }
+
+    public void UpdateRefreshToken(string token, DateTime expiryTime)
+    {
+        RefreshToken = token;
+        RefreshTokenExpiryTime = expiryTime;
+        Update();
+    }
+
+    public void RemoveRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpiryTime = null;
         Update();
     }
 }
