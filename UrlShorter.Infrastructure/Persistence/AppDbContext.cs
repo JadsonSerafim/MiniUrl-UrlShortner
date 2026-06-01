@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<ClickLog> ClickLogs { get; set; }
     public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+    public DbSet<DomainSafety> DomainSafeties { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
