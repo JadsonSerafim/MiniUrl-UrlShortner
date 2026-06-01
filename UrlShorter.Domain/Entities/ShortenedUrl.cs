@@ -1,6 +1,7 @@
 using UrlShorter.Domain.Common;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Common.Result.Errors;
+using UrlShorter.Domain.Enums;
 using UrlShorter.Domain.ValueObjects;
 
 namespace UrlShorter.Domain.Entities;
@@ -13,14 +14,15 @@ public class ShortenedUrl : Entity
     public int ClickCount { get; private set; }
     public DateTime? ExpiresAt { get; private set; }
     public Guid? UserId { get; private set; }
-    
+    public UrlSafetyStatus SafetyStatus { get; private set; }
+
     private ShortenedUrl()
     {
         OriginalUrl = null!;
         ShortCode = null!;
     }
 
-    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt, string? name)
+    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt, string? name, UrlSafetyStatus safetyStatus)
     {
         Name = name;
         OriginalUrl = originalUrl;
@@ -28,10 +30,11 @@ public class ShortenedUrl : Entity
         UserId = userId;
         ClickCount = 0;
         ExpiresAt = expiresAt;
+        SafetyStatus = safetyStatus;
     }
 
     public static Result<ShortenedUrl> Create(Url originalUrl, string shortCode, Guid? userId = null, DateTime? expiresAt = null, int currentUserUrlsCount = 0
-    , string? name = null)
+    , string? name = null, UrlSafetyStatus safetyStatus = UrlSafetyStatus.Safe)
     {
         if (string.IsNullOrWhiteSpace(shortCode))
         {
@@ -65,7 +68,13 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.InvalidName;
         }
 
-        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt, name);
+        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt, name, safetyStatus);
+    }
+
+    public void UpdateSafetyStatus(UrlSafetyStatus status)
+    {
+        SafetyStatus = status;
+        Update();
     }
 
     public Result UpdateUrl(Url newUrl)

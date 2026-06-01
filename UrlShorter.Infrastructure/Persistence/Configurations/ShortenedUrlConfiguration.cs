@@ -34,6 +34,10 @@ public class ShortenedUrlConfiguration : IEntityTypeConfiguration<ShortenedUrl>
         builder.Property(u => u.ClickCount)
             .IsRequired();
 
+        builder.Property(u => u.SafetyStatus)
+            .HasConversion<int>()
+            .IsRequired();
+
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(u => u.UserId);
