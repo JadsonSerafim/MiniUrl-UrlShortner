@@ -8,6 +8,7 @@ using UrlShorter.Infrastructure.Services;
 using UrlShorter.Domain.Repositories;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Infrastructure.Authentication;
+using UrlShorter.Infrastructure.Services.UrlSafety;
 
 namespace UrlShorter.Infrastructure;
 
@@ -37,6 +38,19 @@ public static class DependencyInjection
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ITokenProvider, TokenProvider>();
         services.AddScoped<IEmailService, EmailService>();
+
+        services.Configure<UrlSafetySettings>(configuration.GetSection(UrlSafetySettings.SectionName));
+
+        services.AddHttpClient("GoogleSafeBrowsing", client =>
+        {
+            client.BaseAddress = new Uri("https://safebrowsing.googleapis.com/");
+        });
+
+        services.AddScoped<IDnsResolver, DnsResolver>();
+        services.AddScoped<IUrlSafetyChecker, GoogleSafeBrowsingChecker>();
+        services.AddScoped<IUrlSafetyChecker, SpamHausDblChecker>();
+        services.AddScoped<IUrlSafetyChecker, SurblChecker>();
+        services.AddScoped<IUrlSafetyService, UrlSafetyService>();
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
         

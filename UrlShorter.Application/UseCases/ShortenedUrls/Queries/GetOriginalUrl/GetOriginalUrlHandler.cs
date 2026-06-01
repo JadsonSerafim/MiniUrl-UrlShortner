@@ -3,6 +3,7 @@ using MediatR;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Common.Result.Errors;
+using UrlShorter.Domain.Enums;
 using UrlShorter.Domain.Interfaces;
 using UrlShorter.Domain.Repositories;
 
@@ -14,13 +15,20 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICacheService _cacheService;
     private readonly ChannelWriter<ClickEvent> _channelWriter;
+    private readonly IUrlSafetyService _urlSafetyService;
 
-    public GetOriginalUrlHandler(IShortenedUrlRepository shortenedUrlRepository, IUnitOfWork unitOfWork, ICacheService cacheService, ChannelWriter<ClickEvent> channelWriter)
+    public GetOriginalUrlHandler(
+        IShortenedUrlRepository shortenedUrlRepository,
+        IUnitOfWork unitOfWork,
+        ICacheService cacheService,
+        ChannelWriter<ClickEvent> channelWriter,
+        IUrlSafetyService urlSafetyService)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _cacheService = cacheService;
         _channelWriter = channelWriter;
+        _urlSafetyService = urlSafetyService;
     }
 
     public async Task<Result<string>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
@@ -50,7 +58,35 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.Expired;
         }
 
-        var cacheTtl = TimeSpan.FromDays(2);
+        if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Danger)
+        {
+            return ErrorsUrlSafety.DangerousUrl;
+        }
+
+        if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Pending)
+        {
+            var recheckStatus = await _urlSafetyService.CheckUrlSafetyAsync(
+                shortenedUrl.OriginalUrl.Value, cancellationToken);
+
+            if (recheckStatus == UrlSafetyStatus.Danger)
+            {
+                shortenedUrl.UpdateSafetyStatus(UrlSafetyStatus.Danger);
+                await _shortenedUrlRepository.UpdateAsync(shortenedUrl, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                return ErrorsUrlSafety.DangerousUrl;
+            }
+
+            if (recheckStatus == UrlSafetyStatus.Safe)
+            {
+                shortenedUrl.UpdateSafetyStatus(UrlSafetyStatus.Safe);
+                await _shortenedUrlRepository.UpdateAsync(shortenedUrl, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        var cacheTtl = shortenedUrl.SafetyStatus == UrlSafetyStatus.Pending
+            ? TimeSpan.FromMinutes(5)
+            : TimeSpan.FromDays(2);
         if (shortenedUrl.ExpiresAt.HasValue)
         {
             var remainingTime = shortenedUrl.ExpiresAt.Value - DateTime.UtcNow;
