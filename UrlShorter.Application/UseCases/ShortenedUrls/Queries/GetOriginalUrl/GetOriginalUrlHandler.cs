@@ -58,7 +58,6 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.Expired;
         }
 
-        // Safety check: block dangerous URLs, re-check pending ones
         if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Danger)
         {
             return ErrorsUrlSafety.DangerousUrl;
