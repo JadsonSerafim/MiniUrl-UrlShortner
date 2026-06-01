@@ -38,12 +38,19 @@ public class UrlsController : ApiController
         var query = new GetOriginalUrlQuery(shortCode, ipAddress, userAgent);
         var result = await _sender.Send(query);
 
+        var frontendUrl = _configuration["FrontendUrl"];
+
         if (result.IsSuccess)
         {
-            return Redirect(result.Value);
-        }
+            if (result.Value.RequiresInterstitial)
+            {
+                // Codifica a URL original para passar como parâmetro na query
+                var encodedUrl = Uri.EscapeDataString(result.Value.OriginalUrl);
+                return Redirect($"{frontendUrl}/redirect?target={encodedUrl}");
+            }
 
-        var frontendUrl = _configuration["FrontendUrl"];
+            return Redirect(result.Value.OriginalUrl);
+        }
 
         if (result.Error.Code == "Url.Expired")
         {
