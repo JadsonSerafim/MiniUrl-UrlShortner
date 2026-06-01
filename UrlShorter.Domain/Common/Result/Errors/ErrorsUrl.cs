@@ -63,4 +63,16 @@ public static class ErrorsUrl
     public static readonly Error ExtensionExceedsLimit = Error.Validation(
         "Url.ExtensionExceedsLimit",
         "A data de expiração não pode ultrapassar 1 ano a partir de hoje.");
+
+    public static readonly Error RestrictedTarget = Error.Validation(
+        "Url.RestrictedTarget",
+        "Esta URL aponta para um recurso restrito ou proibido.");
+
+    public static readonly Error MaliciousTld = Error.Validation(
+        "Url.MaliciousTld",
+        "Esta extensão de domínio (.TLD) é frequentemente usada para fins maliciosos e está bloqueada.");
+
+    public static readonly Error ChainRedirectForbidden = Error.Validation(
+        "Url.ChainRedirectForbidden",
+        "Não é permitido encurtar links de outros encurtadores.");
 }
