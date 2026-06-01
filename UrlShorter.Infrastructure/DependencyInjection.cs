@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IClickLogRepository, ClickLogRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IDomainSafetyRepository, DomainSafetyRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IShortCodeGenerator, ShortCodeGenerator>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -40,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<IEmailService, EmailService>();
 
         services.Configure<UrlSafetySettings>(configuration.GetSection(UrlSafetySettings.SectionName));
+        services.Configure<WhoisSettings>(configuration.GetSection(WhoisSettings.SectionName));
 
         services.AddHttpClient("GoogleSafeBrowsing", client =>
         {
@@ -51,6 +53,8 @@ public static class DependencyInjection
         services.AddScoped<IUrlSafetyChecker, SpamHausDblChecker>();
         services.AddScoped<IUrlSafetyChecker, SurblChecker>();
         services.AddScoped<IUrlSafetyService, UrlSafetyService>();
+        services.AddScoped<IWhoisService, WhoisService>();
+        services.AddScoped<IDomainSafetyService, DomainSafetyService>();
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
         
