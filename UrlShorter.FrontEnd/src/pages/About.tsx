@@ -5,7 +5,6 @@ export function About() {
   return (
     <article className="mx-auto max-w-5xl px-4 py-12 sm:py-16 flex flex-col gap-12 animate-fade-in">
 
-      {/* Header Section */}
       <header className="flex flex-col gap-4 text-center max-w-3xl mx-auto">
         <span className="badge self-center bg-primary/10 text-primary border border-primary/20 dark:border-transparent">
           Sobre o Projeto
@@ -18,7 +17,7 @@ export function About() {
         </p>
       </header>
 
-      {/* GitHub Repository Banner */}
+      
       <Card className="border border-primary/20 bg-primary/5 dark:bg-primary/10 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-xl">
         <div className="flex flex-col gap-2 text-center sm:text-left">
           <h3 className="text-lg font-semibold text-ink">
@@ -41,15 +40,11 @@ export function About() {
           Ver Repositório
         </a>
       </Card>
-
-      {/* Tech Stack Details */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-        {/* Backend Card */}
         <Card className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
-              {/* Database/Server icon */}
+              
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
               </svg>
@@ -88,7 +83,7 @@ export function About() {
           </ul>
         </Card>
 
-        {/* Frontend Card */}
+        
         <Card className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -117,7 +112,7 @@ export function About() {
 
       </section>
 
-      {/* Infrastructure Card */}
+      
       <section className="flex flex-col gap-4">
         <h2 className="text-xl font-semibold text-ink text-center tracking-tight">
           Arquitetura de Fluxo de Clique
@@ -146,7 +141,7 @@ export function About() {
         </Card>
       </section>
 
-      {/* Footer Navigation */}
+      
       <div className="flex justify-center gap-4 mt-4">
         <LinkButton to="/" variant="secondary">
           Voltar ao Início

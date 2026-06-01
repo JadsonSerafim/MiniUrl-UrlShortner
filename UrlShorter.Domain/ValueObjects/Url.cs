@@ -24,7 +24,6 @@ public sealed record Url
 
     public static Result<Url> Create(string value)
     {
-        // 1. Validação de Formato
         if (string.IsNullOrWhiteSpace(value))
             return ErrorsUrl.Empty;
 
@@ -34,15 +33,12 @@ public sealed record Url
         if (!AllowedSchemes.Contains(uri.Scheme))
             return ErrorsUrl.HttpInvalid;
 
-        // 2. Prevenção de SSRF (Rede Local)
         if (IsLocalOrPrivateAddress(uri.Host))
             return ErrorsUrl.RestrictedTarget;
 
-        // 3. Bloqueio de TLDs Maliciosos
         if (HasMaliciousTld(uri.Host))
             return ErrorsUrl.MaliciousTld;
 
-        // 4. Prevenção de Chain Redirect e Loop
         if (IsBlockedShortener(uri.Host))
             return ErrorsUrl.ChainRedirectForbidden;
 
@@ -58,19 +54,14 @@ public sealed record Url
         {
             if (IPAddress.IsLoopback(ip)) return true;
 
-            // Check private IPv4 ranges
             if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
             {
                 byte[] bytes = ip.GetAddressBytes();
-                // 10.0.0.0/8
                 if (bytes[0] == 10) return true;
-                // 172.16.0.0/12
                 if (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31) return true;
-                // 192.168.0.0/16
                 if (bytes[0] == 192 && bytes[1] == 168) return true;
             }
-            
-            // IPv6 Link-local / Unique-local
+
             if (ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal) return true;
         }
 
