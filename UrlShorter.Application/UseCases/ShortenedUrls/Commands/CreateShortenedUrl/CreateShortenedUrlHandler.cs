@@ -16,17 +16,20 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
     private readonly IUnitOfWork _unitOfWork;
     private readonly IShortCodeGenerator _shortCodeGenerator;
     private readonly IUrlSafetyService _urlSafetyService;
+    private readonly IDomainSafetyService _domainSafetyService;
 
     public CreateShortenedUrlHandler(
         IShortenedUrlRepository shortenedUrlRepository,
         IUnitOfWork unitOfWork,
         IShortCodeGenerator shortCodeGenerator,
-        IUrlSafetyService urlSafetyService)
+        IUrlSafetyService urlSafetyService,
+        IDomainSafetyService domainSafetyService)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _shortCodeGenerator = shortCodeGenerator;
         _urlSafetyService = urlSafetyService;
+        _domainSafetyService = domainSafetyService;
     }
 
     public async Task<Result<string>> Handle(CreateShortenedUrlCommand request, CancellationToken cancellationToken)
@@ -52,6 +55,11 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
         if (urlResult.IsFailure)
         {
             return Result<string>.Failure(urlResult.Error);
+        }
+
+        if (await _domainSafetyService.IsDomainTooYoungAsync(request.OriginalUrl, cancellationToken))
+        {
+            return Result<string>.Failure(ErrorsUrl.DomainTooYoung);
         }
 
         var safetyStatus = await _urlSafetyService.CheckUrlSafetyAsync(request.OriginalUrl, cancellationToken);

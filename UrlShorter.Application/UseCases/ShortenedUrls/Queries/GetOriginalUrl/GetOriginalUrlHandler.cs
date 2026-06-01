@@ -9,42 +9,42 @@ using UrlShorter.Domain.Repositories;
 
 namespace UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetOriginalUrl;
 
-public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result<string>>
+public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result<GetOriginalUrlResponse>>
 {
     private readonly IShortenedUrlRepository _shortenedUrlRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICacheService _cacheService;
     private readonly ChannelWriter<ClickEvent> _channelWriter;
     private readonly IUrlSafetyService _urlSafetyService;
+    private readonly IDomainSafetyService _domainSafetyService;
 
     public GetOriginalUrlHandler(
         IShortenedUrlRepository shortenedUrlRepository,
         IUnitOfWork unitOfWork,
         ICacheService cacheService,
         ChannelWriter<ClickEvent> channelWriter,
-        IUrlSafetyService urlSafetyService)
+        IUrlSafetyService urlSafetyService,
+        IDomainSafetyService domainSafetyService)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _cacheService = cacheService;
         _channelWriter = channelWriter;
         _urlSafetyService = urlSafetyService;
+        _domainSafetyService = domainSafetyService;
     }
 
-    public async Task<Result<string>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
+    public async Task<Result<GetOriginalUrlResponse>> Handle(GetOriginalUrlQuery request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.ShortCode))
         {
             return ErrorsUrl.NotFound;
         }
 
-        var cacheUrl = await _cacheService.GetAsync(request.ShortCode, cancellationToken);
-
-        if (cacheUrl is not null)
-        {
-            _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
-            return cacheUrl;
-        }
+        // Para garantir regras de intersticial (guest/domínios jovens), ignoramos o cache simples por enquanto
+        // ou poderíamos evoluir o cache para armazenar o objeto completo.
+        // var cacheUrl = await _cacheService.GetAsync(request.ShortCode, cancellationToken);
+        // if (cacheUrl is not null) ...
 
         var shortenedUrl = await _shortenedUrlRepository.GetByShortCodeAsync(request.ShortCode);
 
@@ -58,6 +58,7 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.Expired;
         }
 
+        // Safety check: block dangerous URLs, re-check pending ones
         if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Danger)
         {
             return ErrorsUrlSafety.DangerousUrl;
@@ -84,26 +85,14 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             }
         }
 
-        var cacheTtl = shortenedUrl.SafetyStatus == UrlSafetyStatus.Pending
-            ? TimeSpan.FromMinutes(5)
-            : TimeSpan.FromDays(2);
-        if (shortenedUrl.ExpiresAt.HasValue)
-        {
-            var remainingTime = shortenedUrl.ExpiresAt.Value - DateTime.UtcNow;
-            if (remainingTime <= TimeSpan.Zero)
-            {
-                return ErrorsUrl.Expired;
-            }
-            if (remainingTime < cacheTtl)
-            {
-                cacheTtl = remainingTime;
-            }
-        }
-
-        await _cacheService.SetAsync(request.ShortCode, shortenedUrl.OriginalUrl.Value, cacheTtl, cancellationToken);
-
+        // Registro do clique
         _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
 
-        return shortenedUrl.OriginalUrl.Value;
+        // Verificação de Intersticial
+        var isGuest = shortenedUrl.UserId == null;
+        var requiresInterstitial = await _domainSafetyService.ShouldShowInterstitialAsync(
+            shortenedUrl.OriginalUrl.Value, isGuest, cancellationToken);
+
+        return new GetOriginalUrlResponse(shortenedUrl.OriginalUrl.Value, requiresInterstitial);
     }
 }
