@@ -14,6 +14,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m
 const Expired = lazy(() => import('./pages/Expired').then(m => ({ default: m.Expired })))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 const About = lazy(() => import('./pages/About').then(m => ({ default: m.About })))
+const RedirectPage = lazy(() => import('./pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
 
 export const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'sobre', element: <About /> },
+      { path: 'redirect', element: <RedirectPage /> },
       { path: 'expired', element: <Expired /> },
       { path: 'not-found', element: <NotFoundPage /> },
 
