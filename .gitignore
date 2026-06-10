@@ -17,6 +17,13 @@ dist/
 dist-ssr
 *.local
 .eslintcache
+package-lock.json
+package.json
+commitlint.config.js
+.husky/_
+.husky/check-branch.sh
+nginx.conf
+UrlShorter.FrontEnd/nginx.conf
 
 # Project Specific
 UrlShorter.API/appsettings.json
