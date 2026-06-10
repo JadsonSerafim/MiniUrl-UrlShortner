@@ -14,6 +14,7 @@ RUN dotnet publish "src/UrlShorter.API/UrlShorter.API.csproj" -c Release -o /out
 
 # Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
+RUN apk add --no-cache curl
 USER \$APP_UID
 WORKDIR /app
 COPY --from=build /out .
