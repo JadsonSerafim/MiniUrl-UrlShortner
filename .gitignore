@@ -26,7 +26,6 @@ nginx.conf
 UrlShorter.FrontEnd/nginx.conf
 
 # Project Specific
-src/UrlShorter.API/appsettings.json
 src/UrlShorter.API/appsettings.Development.json
 graphify-out/
 AGENTS.md
