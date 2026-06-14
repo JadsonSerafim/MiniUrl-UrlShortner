@@ -20,8 +20,7 @@ dist-ssr
 package-lock.json
 package.json
 commitlint.config.js
-.husky/_
-.husky/check-branch.sh
+.husky/
 nginx.conf
 UrlShorter.FrontEnd/nginx.conf
 
