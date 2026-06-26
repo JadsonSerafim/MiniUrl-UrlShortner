@@ -17,10 +17,15 @@ dist/
 dist-ssr
 *.local
 .eslintcache
+package-lock.json
+package.json
+commitlint.config.js
+.husky/
+nginx.conf
+UrlShorter.FrontEnd/nginx.conf
 
 # Project Specific
-UrlShorter.API/appsettings.json
-UrlShorter.API/appsettings.Development.json
+src/UrlShorter.API/appsettings.Development.json
 graphify-out/
 AGENTS.md
 GEMINI.md
