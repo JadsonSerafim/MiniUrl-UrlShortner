@@ -30,7 +30,7 @@ public class ShortenedUrlRepository : BaseRepository<ShortenedUrl>, IShortenedUr
         return _context.ShortenedUrls.AnyAsync(
             x => x.ShortCode == shortCode && 
                  x.IsActive && 
-                 (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > now), 
+                 x.ExpiresAt > now, 
             cancellationToken);
     }
 
@@ -56,7 +56,7 @@ public Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, Cancellati
             !x.UserId.HasValue &&
             x.OriginalUrl == url &&
             x.IsActive &&
-            (!x.ExpiresAt.HasValue || x.ExpiresAt.Value > DateTime.UtcNow),
+            x.ExpiresAt > DateTime.UtcNow,
             cancellationToken);
 }
 

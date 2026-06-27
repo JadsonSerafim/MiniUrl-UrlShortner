@@ -12,9 +12,13 @@ public class ShortenedUrl : Entity
     public Url OriginalUrl { get; private set; }
     public string ShortCode { get; private set; }
     public int ClickCount { get; private set; }
-    public DateTime? ExpiresAt { get; private set; }
+    public DateTime ExpiresAt { get; private set; }
     public Guid? UserId { get; private set; }
     public UrlSafetyStatus SafetyStatus { get; private set; }
+
+    private const int GuestExpirationMinutes = 2;
+    private const int DefaultExpirationDays = 1;
+    public const int MaxExpirationDays = 365;
 
     private ShortenedUrl()
     {
@@ -22,7 +26,7 @@ public class ShortenedUrl : Entity
         ShortCode = null!;
     }
 
-    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime? expiresAt, string? name, UrlSafetyStatus safetyStatus)
+    private ShortenedUrl(Url originalUrl, string shortCode, Guid? userId, DateTime expiresAt, string? name, UrlSafetyStatus safetyStatus)
     {
         Name = name;
         OriginalUrl = originalUrl;
@@ -42,33 +46,32 @@ public class ShortenedUrl : Entity
         }
 
         var creationTime = DateTime.UtcNow;
-
-        if (expiresAt is null)
-        {
-            expiresAt = creationTime.AddDays(1);
-        }
+        DateTime expiresAtValue;
 
         if (userId is null)
         {
-            expiresAt = creationTime.AddDays(1).AddMinutes(2);
+            expiresAtValue = creationTime.AddDays(1).AddMinutes(GuestExpirationMinutes);
         }
-
-        if (expiresAt > creationTime.AddYears(1))
+        else
         {
-            return ErrorsUrl.ExtensionExceedsLimit;
+            if (currentUserUrlsCount >= 1000)
+                return ErrorsUrl.UserUrlLimitExceeded;
+
+            expiresAtValue = expiresAt ?? creationTime.AddDays(DefaultExpirationDays);
+
+            if (expiresAtValue <= creationTime)
+                return ErrorsUrl.InvalidExpirationDate;
+
+            if (expiresAtValue > creationTime.AddDays(MaxExpirationDays))
+                return ErrorsUrl.ExtensionExceedsLimit;
         }
 
-        if (userId is not null && currentUserUrlsCount >= 1000)
-        {
-            return ErrorsUrl.UserUrlLimitExceeded;
-        }
-
-        if(name is not null && name.Length > 30)
+        if (name is not null && name.Length > 30)
         {
             return ErrorsUrl.InvalidName;
         }
 
-        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAt, name, safetyStatus);
+        return new ShortenedUrl(originalUrl, shortCode, userId, expiresAtValue, name, safetyStatus);
     }
 
     public void UpdateSafetyStatus(UrlSafetyStatus status)
@@ -91,7 +94,7 @@ public class ShortenedUrl : Entity
 
     public bool IsExpired()
     {
-        return ExpiresAt.HasValue && ExpiresAt.Value < DateTime.UtcNow;
+        return ExpiresAt < DateTime.UtcNow;
     }
     
     public Result ExtendExpiration(int quantity, string unit)
@@ -100,9 +103,9 @@ public class ShortenedUrl : Entity
             return ErrorsUrl.InvalidExtensionQuantity;
 
         var now = DateTime.UtcNow;
-        var maxExpiration = now.AddYears(1);
+        var maxExpiration = now.AddDays(MaxExpirationDays);
 
-        var baseDate = ExpiresAt.HasValue && ExpiresAt.Value > now ? ExpiresAt.Value : now;
+        var baseDate = ExpiresAt > now ? ExpiresAt : now;
 
         var newExpiration = unit.ToLower() switch
         {

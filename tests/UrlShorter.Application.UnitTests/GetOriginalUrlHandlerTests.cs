@@ -116,8 +116,12 @@ public class GetOriginalUrlHandlerTests
         // Arrange
         var shortCode = "abc123";
         var urlVO = Url.Create("https://google.com").Value;
-        // Create expired url by passing a past date and a userId to avoid override
-        var shortenedUrl = ShortenedUrl.Create(urlVO, shortCode, Guid.NewGuid(), DateTime.UtcNow.AddHours(-1)).Value;
+        var shortenedUrl = ShortenedUrl.Create(urlVO, shortCode, Guid.NewGuid()).Value;
+
+        // Use reflection to set ExpiresAt to a past date for testing the expired state
+        var field = typeof(ShortenedUrl).GetProperty("ExpiresAt",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)!;
+        field.SetValue(shortenedUrl, DateTime.UtcNow.AddHours(-1));
 
         _repoMock.Setup(r => r.GetByShortCodeAsync(shortCode))
             .ReturnsAsync(shortenedUrl);
