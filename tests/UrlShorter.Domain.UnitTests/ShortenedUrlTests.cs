@@ -62,17 +62,28 @@ public class ShortenedUrlTests
     }
 
     [Fact]
-    public void IsExpired_ShouldReturnTrue_WhenExpirationDateHasPassed()
+    public void Create_ShouldReturnFailure_WhenExpirationDateIsInThePast()
+    {
+        // Act
+        var result = ShortenedUrl.Create(_validUrl, "abc", Guid.NewGuid(), DateTime.UtcNow.AddDays(-1));
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ErrorsUrl.InvalidExpirationDate);
+    }
+
+    [Fact]
+    public void IsExpired_ShouldReturnFalse_WhenExpirationDateIsInTheFuture()
     {
         // Arrange
-        var result = ShortenedUrl.Create(_validUrl, "abc", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(-1));
+        var result = ShortenedUrl.Create(_validUrl, "abc", Guid.NewGuid(), DateTime.UtcNow.AddMinutes(5));
         var shortenedUrl = result.Value;
 
         // Act
         var isExpired = shortenedUrl.IsExpired();
 
         // Assert
-        isExpired.Should().BeTrue();
+        isExpired.Should().BeFalse();
     }
 
     [Fact]
