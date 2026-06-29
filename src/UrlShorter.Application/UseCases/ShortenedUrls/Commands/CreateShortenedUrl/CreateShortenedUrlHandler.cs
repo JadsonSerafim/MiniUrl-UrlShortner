@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Common.Result.Errors;
@@ -7,6 +8,7 @@ using UrlShorter.Domain.Entities;
 using UrlShorter.Domain.Enums;
 using UrlShorter.Domain.Interfaces;
 using UrlShorter.Domain.Repositories;
+using UrlShorter.Domain.Settings;
 using UrlShorter.Domain.ValueObjects;
 
 namespace UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
@@ -18,19 +20,25 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
     private readonly IShortCodeGenerator _shortCodeGenerator;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IDomainSafetyService _domainSafetyService;
+    private readonly IRedirectChecker _redirectChecker;
+    private readonly BlockedShortenersSettings _blockedShortenersSettings;
 
     public CreateShortenedUrlHandler(
         IShortenedUrlRepository shortenedUrlRepository,
         IUnitOfWork unitOfWork,
         IShortCodeGenerator shortCodeGenerator,
         IServiceScopeFactory scopeFactory,
-        IDomainSafetyService domainSafetyService)
+        IDomainSafetyService domainSafetyService,
+        IRedirectChecker redirectChecker,
+        IOptions<BlockedShortenersSettings> blockedShortenersSettings)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _shortCodeGenerator = shortCodeGenerator;
         _scopeFactory = scopeFactory;
         _domainSafetyService = domainSafetyService;
+        _redirectChecker = redirectChecker;
+        _blockedShortenersSettings = blockedShortenersSettings.Value;
     }
 
     public async Task<Result<string>> Handle(CreateShortenedUrlCommand request, CancellationToken cancellationToken)
@@ -44,6 +52,14 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
                 return Result<string>.Success(existingUrl.ShortCode);
             }
         }
+        else
+        {
+            var existingUrl = await _shortenedUrlRepository.GetActiveUserUrlAsync(request.UserId.Value, request.OriginalUrl, cancellationToken);
+            if (existingUrl != null)
+            {
+                return Result<string>.Success(existingUrl.ShortCode);
+            }
+        }
 
         int activeCount = 0;
         if (request.UserId != null)
@@ -52,7 +68,14 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
         }
 
         int maxTries = 5;
-        var urlResult = Url.Create(request.OriginalUrl);
+
+        var redirectCheck = await _redirectChecker.CheckRedirectChainAsync(request.OriginalUrl, cancellationToken);
+        if (redirectCheck.IsRedirect)
+        {
+            return Result<string>.Failure(ErrorsUrl.ChainRedirectDetected);
+        }
+
+        var urlResult = Url.Create(request.OriginalUrl, _blockedShortenersSettings.Domains);
         if (urlResult.IsFailure)
         {
             return Result<string>.Failure(urlResult.Error);
