@@ -60,6 +60,23 @@ public Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, Cancellati
             cancellationToken);
 }
 
+public Task<ShortenedUrl?> GetActiveUserUrlAsync(Guid userId, string originalUrl, CancellationToken cancellationToken)
+{
+    var urlResult = Url.Create(originalUrl);
+    if (urlResult.IsFailure) return Task.FromResult<ShortenedUrl?>(null);
+
+    var url = urlResult.Value;
+
+    return _context.ShortenedUrls
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x =>
+            x.UserId == userId &&
+            x.OriginalUrl == url &&
+            x.IsActive &&
+            x.ExpiresAt > DateTime.UtcNow,
+            cancellationToken);
+}
+
     public Task<int> CountActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken)
     {
         return _context.ShortenedUrls

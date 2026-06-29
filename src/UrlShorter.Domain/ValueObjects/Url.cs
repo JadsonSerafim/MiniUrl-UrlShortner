@@ -15,14 +15,22 @@ public sealed record Url
         ".tk", ".ml", ".ga", ".cf", ".gq", ".pw", ".top", ".xyz", ".zip", ".mov"
     };
 
-    private static readonly HashSet<string> BlockedShorteners = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> DefaultBlockedShorteners = new(StringComparer.OrdinalIgnoreCase)
     {
-        "bit.ly", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "is.gd", "buff.ly", "cutt.ly", "jadson.dev.br"
+        "bit.ly", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "is.gd",
+        "buff.ly", "cutt.ly", "rebrand.ly", "shorturl.at", "rb.gy",
+        "dw.gd", "v.gd", "tny.im", "tiny.cc", "clck.ru", "surl.li",
+        "urlshortn.com", "shorter.me", "shorturl.do", "shorte.st",
+        "shrinkme.io", "cut.ly", "bitly.com", "bl.ink",
+        "wa.me", "t.me",
+        "0link.co", "adf.ly", "bc.vc", "ouo.io", "tiny.pl",
+        "krz.ch", "href.li",
+        "jadson.dev.br"
     };
 
     private Url(string value) => Value = value;
 
-    public static Result<Url> Create(string value)
+    public static Result<Url> Create(string value, IEnumerable<string>? blockedShorteners = null)
     {
         if (string.IsNullOrWhiteSpace(value))
             return ErrorsUrl.Empty;
@@ -39,7 +47,7 @@ public sealed record Url
         if (HasMaliciousTld(uri.Host))
             return ErrorsUrl.MaliciousTld;
 
-        if (IsBlockedShortener(uri.Host))
+        if (IsBlockedShortener(uri.Host, blockedShorteners))
             return ErrorsUrl.ChainRedirectForbidden;
 
         return new Url(value);
@@ -73,13 +81,21 @@ public sealed record Url
         return MaliciousTlds.Any(tld => host.EndsWith(tld, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static bool IsBlockedShortener(string host)
+    private static bool IsBlockedShortener(string host, IEnumerable<string>? blockedShorteners)
     {
-        var cleanHost = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) 
-            ? host[4..] 
+        var cleanHost = host.StartsWith("www.", StringComparison.OrdinalIgnoreCase)
+            ? host[4..]
             : host;
 
-        return BlockedShorteners.Contains(cleanHost);
+        var shorteners = blockedShorteners?.Any() == true
+            ? new HashSet<string>(blockedShorteners, StringComparer.OrdinalIgnoreCase)
+            : DefaultBlockedShorteners;
+
+        if (shorteners.Contains(cleanHost))
+            return true;
+
+        return shorteners.Any(blocked =>
+            cleanHost.EndsWith("." + blocked, StringComparison.OrdinalIgnoreCase));
     }
 
     public static implicit operator string(Url url) => url.Value;

@@ -1,6 +1,7 @@
 using Moq;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result.Errors;
@@ -8,6 +9,7 @@ using UrlShorter.Domain.Entities;
 using UrlShorter.Domain.Enums;
 using UrlShorter.Domain.Interfaces;
 using UrlShorter.Domain.Repositories;
+using UrlShorter.Domain.Settings;
 using Xunit;
 
 namespace UrlShorter.Application.UnitTests;
@@ -19,6 +21,8 @@ public class CreateShortenedUrlHandlerTests
     private readonly Mock<IShortCodeGenerator> _generatorMock;
     private readonly Mock<IServiceScopeFactory> _scopeFactoryMock;
     private readonly Mock<IDomainSafetyService> _domainSafetyMock;
+    private readonly Mock<IRedirectChecker> _redirectCheckerMock;
+    private readonly Mock<IOptions<BlockedShortenersSettings>> _blockedShortenersOptionsMock;
     private readonly CreateShortenedUrlHandler _handler;
 
     public CreateShortenedUrlHandlerTests()
@@ -28,17 +32,27 @@ public class CreateShortenedUrlHandlerTests
         _generatorMock = new Mock<IShortCodeGenerator>();
         _scopeFactoryMock = new Mock<IServiceScopeFactory>();
         _domainSafetyMock = new Mock<IDomainSafetyService>();
-        
+        _redirectCheckerMock = new Mock<IRedirectChecker>();
+        _blockedShortenersOptionsMock = new Mock<IOptions<BlockedShortenersSettings>>();
+        _blockedShortenersOptionsMock.Setup(o => o.Value).Returns(new BlockedShortenersSettings
+        {
+            Domains = new List<string> { "bit.ly", "tinyurl.com" }
+        });
+
         _handler = new CreateShortenedUrlHandler(
-            _repoMock.Object, 
-            _uowMock.Object, 
-            _generatorMock.Object, 
+            _repoMock.Object,
+            _uowMock.Object,
+            _generatorMock.Object,
             _scopeFactoryMock.Object,
-            _domainSafetyMock.Object);
+            _domainSafetyMock.Object,
+            _redirectCheckerMock.Object,
+            _blockedShortenersOptionsMock.Object);
 
         _generatorMock.Setup(g => g.Generate()).Returns("abc123");
         _domainSafetyMock.Setup(d => d.IsDomainTooYoungAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
+        _redirectCheckerMock.Setup(r => r.CheckRedirectChainAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RedirectCheckResult.NotRedirect());
     }
 
     [Fact]

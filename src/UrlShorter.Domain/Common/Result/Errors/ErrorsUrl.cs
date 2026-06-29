@@ -72,6 +72,10 @@ public static class ErrorsUrl
         "Url.ChainRedirectForbidden",
         "Não é permitido encurtar links de outros encurtadores.");
 
+    public static readonly Error ChainRedirectDetected = Error.Validation(
+        "Url.ChainRedirectDetected",
+        "Esta URL redireciona para outro endereço. Não é permitido encurtar URLs que já são redirecionamentos.");
+
     public static readonly Error DomainTooYoung = Error.Validation(
         "Url.DomainTooYoung",
         "Este domínio é muito recente (menos de 30 dias) e não pode ser encurtado por motivos de segurança.");

@@ -10,5 +10,6 @@ public interface IShortenedUrlRepository : IBaseRepository<ShortenedUrl>
     Task<bool> ShortCodeExistsAndActiveAsync(string shortCode, CancellationToken cancellationToken);
     Task<List<ShortenedUrl>> GetAllUserUrlsAsync(Guid userId, CancellationToken cancellationToken);
     Task<ShortenedUrl?> GetActiveGuestUrlAsync(string originalUrl, CancellationToken cancellationToken);
+    Task<ShortenedUrl?> GetActiveUserUrlAsync(Guid userId, string originalUrl, CancellationToken cancellationToken);
     Task<int> CountActiveByUserIdAsync(Guid userId, CancellationToken cancellationToken);
 }
