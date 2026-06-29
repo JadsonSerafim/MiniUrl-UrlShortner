@@ -1,5 +1,6 @@
 using Moq;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using UrlShorter.Application.UseCases.ShortenedUrls.Commands.CreateShortenedUrl;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result.Errors;
@@ -16,7 +17,7 @@ public class CreateShortenedUrlHandlerTests
     private readonly Mock<IShortenedUrlRepository> _repoMock;
     private readonly Mock<IUnitOfWork> _uowMock;
     private readonly Mock<IShortCodeGenerator> _generatorMock;
-    private readonly Mock<IUrlSafetyService> _safetyMock;
+    private readonly Mock<IServiceScopeFactory> _scopeFactoryMock;
     private readonly Mock<IDomainSafetyService> _domainSafetyMock;
     private readonly CreateShortenedUrlHandler _handler;
 
@@ -25,19 +26,17 @@ public class CreateShortenedUrlHandlerTests
         _repoMock = new Mock<IShortenedUrlRepository>();
         _uowMock = new Mock<IUnitOfWork>();
         _generatorMock = new Mock<IShortCodeGenerator>();
-        _safetyMock = new Mock<IUrlSafetyService>();
+        _scopeFactoryMock = new Mock<IServiceScopeFactory>();
         _domainSafetyMock = new Mock<IDomainSafetyService>();
         
         _handler = new CreateShortenedUrlHandler(
             _repoMock.Object, 
             _uowMock.Object, 
             _generatorMock.Object, 
-            _safetyMock.Object,
+            _scopeFactoryMock.Object,
             _domainSafetyMock.Object);
 
         _generatorMock.Setup(g => g.Generate()).Returns("abc123");
-        _safetyMock.Setup(s => s.CheckUrlSafetyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UrlSafetyStatus.Safe);
         _domainSafetyMock.Setup(d => d.IsDomainTooYoungAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
     }
@@ -60,19 +59,25 @@ public class CreateShortenedUrlHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenUrlIsMalicious()
+    public async Task Handle_ShouldCreateUrlWithPendingStatus_WhenUrlIsMalicious()
     {
         // Arrange
         var command = new CreateShortenedUrlCommand("https://malicious.com", null, null, null);
-        _safetyMock.Setup(s => s.CheckUrlSafetyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(UrlSafetyStatus.Danger);
+        _repoMock.Setup(r => r.ShortCodeExistsAndActiveAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        ShortenedUrl? capturedUrl = null;
+        _repoMock.Setup(r => r.AddAsync(It.IsAny<ShortenedUrl>(), It.IsAny<CancellationToken>()))
+            .Callback<ShortenedUrl, CancellationToken>((url, _) => capturedUrl = url)
+            .ReturnsAsync((ShortenedUrl url, CancellationToken _) => url);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        result.IsFailure.Should().BeTrue();
-        result.Error.Should().Be(ErrorsUrlSafety.MaliciousUrl);
+        result.IsSuccess.Should().BeTrue();
+        capturedUrl.Should().NotBeNull();
+        capturedUrl!.SafetyStatus.Should().Be(UrlSafetyStatus.Pending);
     }
 
     [Fact]
