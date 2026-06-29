@@ -65,6 +65,7 @@ public class GetOriginalUrlHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.Value.OriginalUrl.Should().Be(originalUrl);
         result.Value.RequiresInterstitial.Should().BeFalse();
+        result.Value.InterstitialReason.Should().Be(InterstitialReason.None);
         _channelWriterMock.Verify(w => w.TryWrite(It.IsAny<ClickEvent>()), Times.Once);
     }
 
@@ -91,6 +92,7 @@ public class GetOriginalUrlHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.Value.RequiresInterstitial.Should().BeTrue();
+        result.Value.InterstitialReason.Should().Be(InterstitialReason.GuestOrYoungDomain);
     }
 
     [Fact]
@@ -134,5 +136,57 @@ public class GetOriginalUrlHandlerTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(ErrorsUrl.Expired);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnRequiresInterstitial_WhenUrlIsDanger()
+    {
+        // Arrange
+        var shortCode = "abc123";
+        var originalUrl = "https://malicious.com";
+        var urlVO = Url.Create(originalUrl).Value;
+        var shortenedUrl = ShortenedUrl.Create(urlVO, shortCode, safetyStatus: UrlSafetyStatus.Danger).Value;
+
+        _repoMock.Setup(r => r.GetByShortCodeAsync(shortCode))
+            .ReturnsAsync(shortenedUrl);
+
+        var query = new GetOriginalUrlQuery(shortCode, "127.0.0.1", "agent");
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.OriginalUrl.Should().Be(originalUrl);
+        result.Value.RequiresInterstitial.Should().BeTrue();
+        result.Value.InterstitialReason.Should().Be(InterstitialReason.Danger);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldRecheckAndReturnInterstitial_WhenUrlIsPending()
+    {
+        // Arrange
+        var shortCode = "abc123";
+        var originalUrl = "https://suspicious.com";
+        var urlVO = Url.Create(originalUrl).Value;
+        var shortenedUrl = ShortenedUrl.Create(urlVO, shortCode, safetyStatus: UrlSafetyStatus.Pending).Value;
+
+        _repoMock.Setup(r => r.GetByShortCodeAsync(shortCode))
+            .ReturnsAsync(shortenedUrl);
+
+        _safetyMock.Setup(s => s.CheckUrlSafetyAsync(originalUrl, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(UrlSafetyStatus.Danger);
+
+        var query = new GetOriginalUrlQuery(shortCode, "127.0.0.1", "agent");
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.RequiresInterstitial.Should().BeTrue();
+        result.Value.InterstitialReason.Should().Be(InterstitialReason.Danger);
+        shortenedUrl.SafetyStatus.Should().Be(UrlSafetyStatus.Danger);
+        _repoMock.Verify(r => r.UpdateAsync(shortenedUrl, It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Domain.Common.Result;
 using UrlShorter.Domain.Common.Result.Errors;
@@ -15,20 +16,20 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
     private readonly IShortenedUrlRepository _shortenedUrlRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IShortCodeGenerator _shortCodeGenerator;
-    private readonly IUrlSafetyService _urlSafetyService;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly IDomainSafetyService _domainSafetyService;
 
     public CreateShortenedUrlHandler(
         IShortenedUrlRepository shortenedUrlRepository,
         IUnitOfWork unitOfWork,
         IShortCodeGenerator shortCodeGenerator,
-        IUrlSafetyService urlSafetyService,
+        IServiceScopeFactory scopeFactory,
         IDomainSafetyService domainSafetyService)
     {
         _shortenedUrlRepository = shortenedUrlRepository;
         _unitOfWork = unitOfWork;
         _shortCodeGenerator = shortCodeGenerator;
-        _urlSafetyService = urlSafetyService;
+        _scopeFactory = scopeFactory;
         _domainSafetyService = domainSafetyService;
     }
 
@@ -62,12 +63,6 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
             return Result<string>.Failure(ErrorsUrl.DomainTooYoung);
         }
 
-        var safetyStatus = await _urlSafetyService.CheckUrlSafetyAsync(request.OriginalUrl, cancellationToken);
-        if (safetyStatus == UrlSafetyStatus.Danger)
-        {
-            return Result<string>.Failure(ErrorsUrlSafety.MaliciousUrl);
-        }
-
         string shortCode = _shortCodeGenerator.Generate();
         while(await _shortenedUrlRepository.ShortCodeExistsAndActiveAsync(shortCode, cancellationToken))
         {
@@ -88,11 +83,30 @@ public class CreateShortenedUrlHandler : IRequestHandler<CreateShortenedUrlComma
             await _shortenedUrlRepository.UpdateAsync(existingExpiredUrl, cancellationToken);
         }
 
-        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt, activeCount, request.Name, safetyStatus);
+        var shortenedUrlResult = ShortenedUrl.Create(urlResult.Value, shortCode, request.UserId, request.ExpiresAt, activeCount, request.Name, UrlSafetyStatus.Pending);
         if(shortenedUrlResult.IsFailure) return Result<string>.Failure(shortenedUrlResult.Error);
 
         await _shortenedUrlRepository.AddAsync(shortenedUrlResult.Value, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var urlToCheck = request.OriginalUrl;
+        var capturedShortCode = shortCode;
+        _ = Task.Run(async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var safetyService = scope.ServiceProvider.GetRequiredService<IUrlSafetyService>();
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            var repository = scope.ServiceProvider.GetRequiredService<IShortenedUrlRepository>();
+
+            var status = await safetyService.CheckUrlSafetyAsync(urlToCheck);
+            var url = await repository.GetByShortCodeAsync(capturedShortCode);
+            if (url is not null)
+            {
+                url.UpdateSafetyStatus(status);
+                await repository.UpdateAsync(url);
+                await unitOfWork.SaveChangesAsync();
+            }
+        });
 
         return Result<string>.Success(shortCode);
     }

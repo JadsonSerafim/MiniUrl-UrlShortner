@@ -58,10 +58,13 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.Expired;
         }
 
-        // Safety check: block dangerous URLs, re-check pending ones
+        var requiresInterstitial = false;
+        var interstitialReason = InterstitialReason.None;
+
         if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Danger)
         {
-            return ErrorsUrlSafety.DangerousUrl;
+            requiresInterstitial = true;
+            interstitialReason = InterstitialReason.Danger;
         }
 
         if (shortenedUrl.SafetyStatus == UrlSafetyStatus.Pending)
@@ -74,7 +77,8 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
                 shortenedUrl.UpdateSafetyStatus(UrlSafetyStatus.Danger);
                 await _shortenedUrlRepository.UpdateAsync(shortenedUrl, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
-                return ErrorsUrlSafety.DangerousUrl;
+                requiresInterstitial = true;
+                interstitialReason = InterstitialReason.Danger;
             }
 
             if (recheckStatus == UrlSafetyStatus.Safe)
@@ -85,14 +89,19 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             }
         }
 
-        // Registro do clique
+        if (!requiresInterstitial)
+        {
+            var isGuest = shortenedUrl.UserId == null;
+            requiresInterstitial = await _domainSafetyService.ShouldShowInterstitialAsync(
+                shortenedUrl.OriginalUrl.Value, isGuest, cancellationToken);
+            if (requiresInterstitial)
+            {
+                interstitialReason = InterstitialReason.GuestOrYoungDomain;
+            }
+        }
+
         _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
 
-        // Verificação de Intersticial
-        var isGuest = shortenedUrl.UserId == null;
-        var requiresInterstitial = await _domainSafetyService.ShouldShowInterstitialAsync(
-            shortenedUrl.OriginalUrl.Value, isGuest, cancellationToken);
-
-        return new GetOriginalUrlResponse(shortenedUrl.OriginalUrl.Value, requiresInterstitial);
+        return new GetOriginalUrlResponse(shortenedUrl.OriginalUrl.Value, requiresInterstitial, interstitialReason);
     }
 }

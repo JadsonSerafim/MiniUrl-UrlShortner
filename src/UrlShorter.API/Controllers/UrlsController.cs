@@ -44,9 +44,9 @@ public class UrlsController : ApiController
         {
             if (result.Value.RequiresInterstitial)
             {
-                // Codifica a URL original para passar como parâmetro na query
                 var encodedUrl = Uri.EscapeDataString(result.Value.OriginalUrl);
-                return Redirect($"{frontendUrl}/redirect?target={encodedUrl}");
+                var reason = result.Value.InterstitialReason.ToString().ToLowerInvariant();
+                return Redirect($"{frontendUrl}/redirect?target={encodedUrl}&reason={reason}");
             }
 
             return Redirect(result.Value.OriginalUrl);
