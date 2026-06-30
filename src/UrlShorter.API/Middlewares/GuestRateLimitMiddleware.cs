@@ -16,8 +16,8 @@ public class GuestRateLimitMiddleware
     {
         if (context.Request.Path.Equals("/api/urls", StringComparison.OrdinalIgnoreCase) && context.Request.Method == HttpMethods.Post)
         {
-
             bool isAuthenticated = context.User.Identity?.IsAuthenticated ?? false;
+
             if (!isAuthenticated)
             {
                 string clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -25,26 +25,58 @@ public class GuestRateLimitMiddleware
 
                 var currentCount = cache.GetOrCreate(cacheKey, entry =>
                 {
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2);
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
                     return new RateLimitCounter
                     {
                         Count = 0,
-                        ExpiresAt = DateTime.UtcNow.AddMinutes(2)
+                        ExpiresAt = DateTime.UtcNow.AddMinutes(5)
                     };
                 });
-                    if (currentCount!.Count >= 5)
+
+                if (currentCount!.Count >= 5)
+                {
+                    context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.Response.ContentType = "application/json";
+                    var errorResponse = new
                     {
-                        context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                        context.Response.ContentType = "application/json";
-                        var errorResponse = new
-                        {
-                            Code = "RateLimit.Exceeded",
-                            Description = "Muitas requisições, tente novamente em 2 minutos",
-                            Type = 1
-                        };
-                        await context.Response.WriteAsJsonAsync(errorResponse);
-                        return;
-                    }
+                        Code = "RateLimit.Exceeded",
+                        Description = "Muitas requisições, tente novamente em 5 minutos",
+                        Type = 1
+                    };
+                    await context.Response.WriteAsJsonAsync(errorResponse);
+                    return;
+                }
+
+                currentCount.Count++;
+            }
+            else
+            {
+                string userId = context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "unknown";
+                string cacheKey = $"rateLimit:user:{userId}";
+
+                var currentCount = cache.GetOrCreate(cacheKey, entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                    return new RateLimitCounter
+                    {
+                        Count = 0,
+                        ExpiresAt = DateTime.UtcNow.AddMinutes(5)
+                    };
+                });
+
+                if (currentCount!.Count >= 10)
+                {
+                    context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.Response.ContentType = "application/json";
+                    var errorResponse = new
+                    {
+                        Code = "RateLimit.Exceeded",
+                        Description = "Limite de URLs atingido. Máximo 10 URLs a cada 5 minutos.",
+                        Type = 1
+                    };
+                    await context.Response.WriteAsJsonAsync(errorResponse);
+                    return;
+                }
 
                 currentCount.Count++;
             }
