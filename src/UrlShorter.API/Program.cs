@@ -59,6 +59,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
 app.UseCors(policy =>
 {
     var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
