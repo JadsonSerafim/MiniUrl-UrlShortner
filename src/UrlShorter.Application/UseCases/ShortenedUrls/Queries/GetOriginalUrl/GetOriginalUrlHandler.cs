@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Channels;
 using MediatR;
 using UrlShorter.Application.Interfaces;
@@ -41,10 +42,16 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
             return ErrorsUrl.NotFound;
         }
 
-        // Para garantir regras de intersticial (guest/domínios jovens), ignoramos o cache simples por enquanto
-        // ou poderíamos evoluir o cache para armazenar o objeto completo.
-        // var cacheUrl = await _cacheService.GetAsync(request.ShortCode, cancellationToken);
-        // if (cacheUrl is not null) ...
+        var cacheKey = $"redirect:{request.ShortCode}";
+        var cachedJson = await _cacheService.GetAsync(cacheKey, cancellationToken);
+        if (cachedJson is not null)
+        {
+            var cached = JsonSerializer.Deserialize<CachedRedirectResponse>(cachedJson);
+            if (cached is not null)
+            {
+                return new GetOriginalUrlResponse(cached.OriginalUrl, cached.RequiresInterstitial, cached.InterstitialReason);
+            }
+        }
 
         var shortenedUrl = await _shortenedUrlRepository.GetByShortCodeAsync(request.ShortCode);
 
@@ -102,6 +109,25 @@ public class GetOriginalUrlHandler : IRequestHandler<GetOriginalUrlQuery, Result
 
         _channelWriter.TryWrite(new ClickEvent(request.ShortCode, request.IpAddress, request.UserAgent, DateTime.UtcNow));
 
-        return new GetOriginalUrlResponse(shortenedUrl.OriginalUrl.Value, requiresInterstitial, interstitialReason);
+        var response = new GetOriginalUrlResponse(shortenedUrl.OriginalUrl.Value, requiresInterstitial, interstitialReason);
+
+        var cacheResponse = new CachedRedirectResponse(
+            shortenedUrl.OriginalUrl.Value,
+            requiresInterstitial,
+            interstitialReason,
+            shortenedUrl.SafetyStatus);
+
+        var ttl = GetCacheDuration(shortenedUrl.SafetyStatus);
+        await _cacheService.SetAsync(cacheKey, JsonSerializer.Serialize(cacheResponse), ttl, cancellationToken);
+
+        return response;
     }
+
+    private static TimeSpan GetCacheDuration(UrlSafetyStatus status) => status switch
+    {
+        UrlSafetyStatus.Safe => TimeSpan.FromDays(3),
+        UrlSafetyStatus.Pending => TimeSpan.FromMinutes(2),
+        UrlSafetyStatus.Danger => TimeSpan.FromDays(3),
+        _ => TimeSpan.FromMinutes(2)
+    };
 }
