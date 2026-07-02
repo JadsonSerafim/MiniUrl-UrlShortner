@@ -1,0 +1,52 @@
+name: Continuous Integration (CI)
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore UrlShorter.sln
+
+      - name: Build Solution
+        run: dotnet build UrlShorter.sln --no-restore -c Release
+
+      - name: Run Tests
+        run: dotnet test UrlShorter.sln --no-build --verbosity normal
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: UrlShorter.FrontEnd/package-lock.json
+
+      - name: Install dependencies
+        working-directory: UrlShorter.FrontEnd
+        run: npm ci
+
+      - name: Lint Frontend
+        working-directory: UrlShorter.FrontEnd
+        run: npm run lint
+
+      - name: Build Frontend
+        working-directory: UrlShorter.FrontEnd
+        run: npm run build
