@@ -7,9 +7,11 @@ export function RedirectPage() {
   const [searchParams] = useSearchParams()
   const target = searchParams.get('target') || ''
   const reason = searchParams.get('reason') || ''
-  const [countdown, setCountdown] = useState(5)
 
   const isDanger = reason === 'danger'
+  const isGuestOrYoung = reason === 'guestoryoungdomain'
+  const duration = isDanger ? 20 : (isGuestOrYoung ? 10 : 5)
+  const [countdown, setCountdown] = useState(duration)
 
   useEffect(() => {
     if (!target) return
@@ -20,13 +22,13 @@ export function RedirectPage() {
 
     const redirectTimer = setTimeout(() => {
       window.location.href = target
-    }, 5000)
+    }, duration * 1000)
 
     return () => {
       clearInterval(timer)
       clearTimeout(redirectTimer)
     }
-  }, [target])
+  }, [target, duration])
 
   const handleManualRedirect = () => {
     window.location.href = target

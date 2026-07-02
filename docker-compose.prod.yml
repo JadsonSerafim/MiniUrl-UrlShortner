@@ -9,6 +9,7 @@ services:
       - Jwt__Secret=${JWT_SECRET}
       - FrontendUrl=${FRONTEND_URL}
       - UrlSafety__GoogleSafeBrowsing__ApiKey=${GOOGLE_SAFE_BROWSING_API_KEY}
+      - Whois__ApiKey=${WHOIS_API_KEY}
       - Email__SmtpServer=${EMAIL_SMTP_SERVER}
       - Email__SmtpPort=${EMAIL_SMTP_PORT}
       - Email__SmtpUser=${EMAIL_SMTP_USER}
