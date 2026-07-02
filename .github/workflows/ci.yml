@@ -25,7 +25,7 @@ jobs:
         run: dotnet build UrlShorter.sln --no-restore -c Release
 
       - name: Run Tests
-        run: dotnet test UrlShorter.sln --no-build --verbosity normal
+        run: dotnet test UrlShorter.sln --no-build -c Release --verbosity normal
 
   frontend-test:
     runs-on: ubuntu-latest
