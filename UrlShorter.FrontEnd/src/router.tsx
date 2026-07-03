@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { Navigate } from 'react-router-dom'
 import { RootLayout } from './layouts/RootLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { ProtectedLayout } from './layouts/ProtectedLayout'
@@ -15,6 +16,7 @@ const Expired = lazy(() => import('./pages/Expired').then(m => ({ default: m.Exp
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 const About = lazy(() => import('./pages/About').then(m => ({ default: m.About })))
 const RedirectPage = lazy(() => import('./pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
+const Infrastructure = lazy(() => import('./pages/Infrastructure').then(m => ({ default: m.Infrastructure })))
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'sobre', element: <About /> },
+      { path: 'infra', element: <Navigate to="/sobre?tab=infra" replace /> },
       { path: 'redirect', element: <RedirectPage /> },
       { path: 'expired', element: <Expired /> },
       { path: 'not-found', element: <NotFoundPage /> },
