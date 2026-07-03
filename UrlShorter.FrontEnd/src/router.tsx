@@ -16,7 +16,6 @@ const Expired = lazy(() => import('./pages/Expired').then(m => ({ default: m.Exp
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })))
 const About = lazy(() => import('./pages/About').then(m => ({ default: m.About })))
 const RedirectPage = lazy(() => import('./pages/RedirectPage').then(m => ({ default: m.RedirectPage })))
-const Infrastructure = lazy(() => import('./pages/Infrastructure').then(m => ({ default: m.Infrastructure })))
 
 export const router = createBrowserRouter([
   {
