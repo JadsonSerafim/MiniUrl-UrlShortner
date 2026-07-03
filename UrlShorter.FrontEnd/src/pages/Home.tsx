@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import UrlShortener from '../components/UrlShortener'
 import StepCard from '../components/StepCard'
@@ -43,14 +43,12 @@ export function Home() {
             Não deixe URLs críticas aqui, o sistema é self-hosted em um mini PC e como
             visitante anônimo, seus links encurtados expiram em 24h.
           </p>
-          <a
-            href="https://github.com/JadsonSerafim/UrlShorter"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/infra"
             className="text-xs text-primary hover:text-primary-active font-semibold transition-colors mt-2 inline-flex items-center gap-1"
           >
             Saiba mais sobre a infra ↗
-          </a>
+          </Link>
         </Card>
       </div>
 
