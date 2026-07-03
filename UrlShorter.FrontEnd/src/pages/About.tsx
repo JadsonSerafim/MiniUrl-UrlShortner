@@ -10,14 +10,14 @@ export function About() {
           Sobre o Projeto
         </span>
         <h1 className="text-3xl sm:text-display-sm text-ink font-light tracking-tight">
-          UrlShorter
+          MiniUrl
         </h1>
         <p className="text-base sm:text-body-md text-body leading-relaxed">
           Encurtador de URLs criado como projeto pessoal de estudo.
         </p>
       </header>
 
-      
+
       <Card className="border border-primary/20 bg-primary/5 dark:bg-primary/10 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-xl">
         <div className="flex flex-col gap-2 text-center sm:text-left">
           <h3 className="text-lg font-semibold text-ink">
@@ -44,7 +44,7 @@ export function About() {
         <Card className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
-              
+
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
               </svg>
@@ -58,11 +58,11 @@ export function About() {
           <ul className="flex flex-col gap-3 text-sm text-body leading-relaxed">
             <li className="flex gap-2">
               <span className="text-primary font-semibold">✓</span>
-              <span><strong>Clean Architecture & DDD:</strong> Divisão bem definida de camadas (Domain, Application, Infrastructure, API) isolando a lógica de negócio principal de acoplamentos externos.</span>
+              <span><strong>Clean Architecture & DDD:</strong> Separação do projeto em camadas (Domain, Application, Infrastructure, API) isolando a lógica de negócio principal de acoplamentos externos.</span>
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-semibold">✓</span>
-              <span><strong>CQRS & MediatR:</strong> Padrão Command Query Responsibility Segregation isolando fluxos de leitura e escrita para máxima manutenibilidade.</span>
+              <span><strong>CQRS & MediatR:</strong> Padrão Command Query Responsibility Segregation isolando fluxos de leitura e escrita.</span>
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-semibold">✓</span>
@@ -74,16 +74,16 @@ export function About() {
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-semibold">✓</span>
-              <span><strong>Persistência Poliglota:</strong> Banco de dados relacional PostgreSQL via Entity Framework Core e cache de redirecionamento via Redis (Padrão Cache-Aside).</span>
+              <span><strong>Cache side Pattern:</strong> Cache de redirecionamento via Redis e banco de dados relacional PostgreSQL via Entity Framework Core.</span>
             </li>
             <li className="flex gap-2">
               <span className="text-primary font-semibold">✓</span>
-              <span><strong>Controle de Abuso:</strong> Rate limiting para visitantes com middleware customizado e limite de URLs ativas para usuários autenticados.</span>
+              <span><strong>Controle de Abuso:</strong> Rate limiting para visitantes e controle de URLs ativas para usuários autenticados.</span>
             </li>
           </ul>
         </Card>
 
-        
+
         <Card className="flex flex-col gap-6 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -112,36 +112,6 @@ export function About() {
 
       </section>
 
-      
-      <section className="flex flex-col gap-4">
-        <h2 className="text-xl font-semibold text-ink text-center tracking-tight">
-          Arquitetura de Fluxo de Clique
-        </h2>
-        <Card className="p-6 text-sm text-body flex flex-col gap-4">
-          <p>
-            Um dos grandes diferenciais do projeto é o sistema de rastreamento assíncrono e resiliente. Quando alguém clica em um link encurtado:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-surface-soft border border-hairline">
-              <div className="text-xs font-bold text-primary">PASSO 1</div>
-              <h4 className="font-semibold text-ink text-sm">Cache-Aside Redirection</h4>
-              <p className="text-xs">A API do encurtador bate primeiramente no Redis para encontrar o link de redirecionamento. O usuário é redirecionado instantaneamente (302) sem tocar no banco PostgreSQL.</p>
-            </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-surface-soft border border-hairline">
-              <div className="text-xs font-bold text-primary">PASSO 2</div>
-              <h4 className="font-semibold text-ink text-sm">System.Threading.Channels</h4>
-              <p className="text-xs">As informações do clique (User-Agent, IP, ShortCode) são publicadas instantaneamente em um canal em memória sem bloquear a resposta HTTP do usuário final.</p>
-            </div>
-            <div className="flex flex-col gap-2 p-4 rounded-lg bg-surface-soft border border-hairline">
-              <div className="text-xs font-bold text-primary">PASSO 3</div>
-              <h4 className="font-semibold text-ink text-sm">Background Worker & Fallback</h4>
-              <p className="text-xs">Um serviço de background consome o canal, agrupa os cliques em lotes (batching) e os salva de forma assíncrona no PostgreSQL. Se o banco principal falhar, o lote é salvo em um banco local SQLite para processamento posterior.</p>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      
       <div className="flex justify-center gap-4 mt-4">
         <LinkButton to="/" variant="secondary">
           Voltar ao Início
