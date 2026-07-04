@@ -28,6 +28,9 @@ services:
       - vps-network
     expose:
       - "80"
+    volumes:
+      - ./images/orangepi.jpg:/usr/share/nginx/html/orangepi.jpg:ro
+      - ./images/orangepi2.jpg:/usr/share/nginx/html/orangepi2.jpg:ro
 
 networks:
   vps-network:

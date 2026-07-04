@@ -54,9 +54,9 @@ export default function UrlShortener({
   const generatedShortUrl = shortCode ? `${backendBaseUrl}/${shortCode}` : ''
 
   const mutation = useMutation({
-    mutationFn: ({ url, expiresAt, name }: { url: string; expiresAt?: string; name?: string }) =>
+    mutationFn: ({ originalUrl, expiresAt, name }: { originalUrl: string; expiresAt?: string; name?: string }) =>
       shortenUrl({
-        originalUrl: url,
+        originalUrl,
         userId,
         expiresAt,
         name: name && name.trim() !== '' ? name : undefined,
@@ -83,7 +83,7 @@ export default function UrlShortener({
     setValue('originalUrl', data.originalUrl)
 
     mutation.mutate({
-      url: data.originalUrl,
+      originalUrl: data.originalUrl,
       expiresAt: getExpiresAtDate(data, userId),
       name: data.name,
     })

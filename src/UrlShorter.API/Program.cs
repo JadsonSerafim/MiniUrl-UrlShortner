@@ -69,7 +69,8 @@ app.UseCors(policy =>
 
     policy.WithOrigins(frontendUrl)
           .AllowAnyHeader()
-          .AllowAnyMethod();
+          .AllowAnyMethod()
+          .AllowCredentials();
 });
 
 app.UseAuthentication();
