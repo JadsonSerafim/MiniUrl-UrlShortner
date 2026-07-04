@@ -22,10 +22,28 @@ export function extractApiError(
   }
 
   if (errorData?.errors) {
-    const firstKey = Object.keys(errorData.errors)[0]
-    const messages = firstKey ? errorData.errors[firstKey] : undefined
-    if (messages && messages.length > 0) {
-      return messages[0]
+    if (Array.isArray(errorData.errors)) {
+      const firstError = errorData.errors[0]
+      if (firstError) {
+        if (typeof firstError === 'string') {
+          return firstError
+        }
+        if (typeof firstError === 'object' && firstError !== null) {
+          if ('description' in firstError && typeof firstError.description === 'string') {
+            return firstError.description
+          }
+          if ('message' in firstError && typeof firstError.message === 'string') {
+            return firstError.message
+          }
+        }
+      }
+    } else if (typeof errorData.errors === 'object') {
+      const errorsObj = errorData.errors as Record<string, string[]>
+      const firstKey = Object.keys(errorsObj)[0]
+      const messages = firstKey ? errorsObj[firstKey] : undefined
+      if (messages && messages.length > 0) {
+        return messages[0]
+      }
     }
   }
  
@@ -33,6 +51,5 @@ export function extractApiError(
     return errorData.description
   }
 
-  
   return defaultMessage
 }
