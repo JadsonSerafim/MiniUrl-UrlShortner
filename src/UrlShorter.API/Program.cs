@@ -63,7 +63,10 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 
 app.UseCors(policy =>
 {
-    var frontendUrl = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+    var frontendUrl = builder.Configuration["FrontendUrl"]
+        ?? builder.Configuration["FRONTEND_URL"]
+        ?? "http://localhost:5173";
+
     policy.WithOrigins(frontendUrl)
           .AllowAnyHeader()
           .AllowAnyMethod();

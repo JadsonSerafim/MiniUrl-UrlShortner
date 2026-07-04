@@ -4,6 +4,7 @@ import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
 import UrlAnalyticsModal from './UrlAnalyticsModal'
 import { EmptyState, EmptyIcon } from './EmptyState'
+import { getPublicBaseUrl } from '../utils/runtimeEnv'
 
 interface RecentLinksListProps {
   urls: UrlItem[]
@@ -12,7 +13,7 @@ interface RecentLinksListProps {
 export default function RecentLinksList({ urls }: RecentLinksListProps) {
   const { copy } = useClipboard()
   const [selectedShortCode, setSelectedShortCode] = useState<string | null>(null)
-  const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  const backendBaseUrl = getPublicBaseUrl()
 
   const recentUrls = urls.slice(0, 5)
 
