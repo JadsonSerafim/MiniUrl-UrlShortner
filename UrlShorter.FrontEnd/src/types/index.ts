@@ -16,11 +16,12 @@ export interface ResetPasswordRequest {
 }
 
 export interface ApiError {
-  code: string;
-  description: string;
-  
-  type: number;
-  errors?: Record<string, string[]>;
+  code?: string;
+  description?: string;
+  type?: number;
+  title?: string;
+  status?: number;
+  errors?: Record<string, string[]> | Array<{ code?: string; description?: string; type?: number; status?: number }>;
 }
 
 export interface LoginRequest {
