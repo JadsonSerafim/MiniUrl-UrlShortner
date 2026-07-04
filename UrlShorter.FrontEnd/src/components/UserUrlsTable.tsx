@@ -4,6 +4,7 @@ import { useClipboard } from '../hooks/useClipboard'
 import Card from './Card'
 import UrlAnalyticsModal from './UrlAnalyticsModal'
 import ExtendExpirationModal from './ExtendExpirationModal'
+import { getPublicBaseUrl } from '../utils/runtimeEnv'
 
 interface UserUrlsTableProps {
   urls: UrlItem[]
@@ -17,7 +18,7 @@ export default function UserUrlsTable({ urls }: UserUrlsTableProps) {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'most-clicked' | 'least-clicked'>('newest')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'expired'>('all')
 
-  const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  const backendBaseUrl = getPublicBaseUrl()
 
   const filteredAndSortedUrls = useMemo(() => {
     let result = urls.filter((url) => {

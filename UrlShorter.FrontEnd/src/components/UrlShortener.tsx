@@ -12,6 +12,7 @@ import Input from './Input'
 import Button from './Button'
 import ExpirationSelector from './ExpirationSelector'
 import { extractApiError } from '../utils/errorParser'
+import { getPublicBaseUrl } from '../utils/runtimeEnv'
 import { shortenUrlSchema, getExpiresAtDate, type ShortenUrlFormValues } from '../schemas/url.schema'
 
 interface UrlShortenerProps {
@@ -49,7 +50,7 @@ export default function UrlShortener({
   const { copied, copy } = useClipboard()
   const queryClient = useQueryClient()
 
-  const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+  const backendBaseUrl = getPublicBaseUrl()
   const generatedShortUrl = shortCode ? `${backendBaseUrl}/${shortCode}` : ''
 
   const mutation = useMutation({

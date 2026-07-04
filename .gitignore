@@ -33,8 +33,4 @@ DESIGN.md
 docker.env
 .env
 .idea
-
-
-public/*
-UrlShorter.FrontEnd/orange_pi_zero_3.jpg
-publish-api/
+images/
