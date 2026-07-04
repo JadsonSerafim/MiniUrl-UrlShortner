@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { Navigate } from 'react-router-dom'
 import { RootLayout } from './layouts/RootLayout'
 import { AuthLayout } from './layouts/AuthLayout'
 import { ProtectedLayout } from './layouts/ProtectedLayout'
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'sobre', element: <About /> },
+      { path: 'infra', element: <Navigate to="/sobre?tab=infra" replace /> },
       { path: 'redirect', element: <RedirectPage /> },
       { path: 'expired', element: <Expired /> },
       { path: 'not-found', element: <NotFoundPage /> },
