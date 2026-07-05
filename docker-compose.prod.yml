@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       - ConnectionStrings__DefaultConnection=Host=shared-db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - ConnectionStrings__Redis=${REDIS_CONNECTION}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION},password=${REDIS_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
       - FrontendUrl=${FRONTEND_URL}
       - UrlSafety__GoogleSafeBrowsing__ApiKey=${GOOGLE_SAFE_BROWSING_API_KEY}
