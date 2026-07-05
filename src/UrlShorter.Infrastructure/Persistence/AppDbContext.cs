@@ -25,7 +25,17 @@ public class AppDbContext : DbContext
         {
             if (typeof(Entity).IsAssignableFrom(entityType.ClrType))
             {
-            modelBuilder.Entity(entityType.ClrType).HasQueryFilter(GetIsActiveFilter(entityType.ClrType));
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(GetIsActiveFilter(entityType.ClrType));
+            }
+
+            var properties = entityType.GetProperties()
+                .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?));
+
+            foreach (var property in properties)
+            {
+                property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                    v => v.Kind == DateTimeKind.Utc ? v : DateTime.SpecifyKind(v, DateTimeKind.Utc),
+                    v => v));
             }
         }
     }
