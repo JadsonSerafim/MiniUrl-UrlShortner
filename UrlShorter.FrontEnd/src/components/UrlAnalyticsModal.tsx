@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { getUrlAnalytics } from '../services/url.service'
-import { parseUserAgent } from '../utils/userAgent'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import Card from './Card'
 import ClickHistoryModal from './ClickHistoryModal'
@@ -39,7 +38,8 @@ export default function UrlAnalyticsModal({ shortCode, isOpen, onClose }: UrlAna
     const uniqueIps = new Set<string>()
 
     data.clicks.forEach((click) => {
-      const { browser, os } = parseUserAgent(click.userAgent)
+      const browser = click.browser || 'Desconhecido'
+      const os = click.operatingSystem || 'Desconhecido'
       browserMap[browser] = (browserMap[browser] || 0) + 1
       systemMap[os] = (systemMap[os] || 0) + 1
       if (click.ipAddress) {
