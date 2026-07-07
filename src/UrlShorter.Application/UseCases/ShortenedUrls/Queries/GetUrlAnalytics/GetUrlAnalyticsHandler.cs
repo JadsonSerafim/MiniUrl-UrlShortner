@@ -36,7 +36,8 @@ public class GetUrlAnalyticsHandler : IRequestHandler<GetUrlAnalyticsQuery, Resu
 
         var clickDtos = clicks.Select(c => new ClickLogDto(
             c.IpAddress.Value,
-            c.UserAgent,
+            ParseBrowser(c.UserAgent),
+            ParseOperatingSystem(c.UserAgent),
             c.CreatedAt
         )).ToList();
 
@@ -48,5 +49,33 @@ public class GetUrlAnalyticsHandler : IRequestHandler<GetUrlAnalyticsQuery, Resu
         );
 
         return response;
+    }
+
+    private static string ParseBrowser(string? userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return "Desconhecido";
+
+        var ua = userAgent.ToLowerInvariant();
+        if (ua.Contains("firefox")) return "Firefox";
+        if (ua.Contains("edg") || ua.Contains("edge")) return "Edge";
+        if (ua.Contains("opr") || ua.Contains("opera")) return "Opera";
+        if (ua.Contains("chrome")) return "Chrome";
+        if (ua.Contains("safari")) return "Safari";
+        return "Outro";
+    }
+
+    private static string ParseOperatingSystem(string? userAgent)
+    {
+        if (string.IsNullOrEmpty(userAgent))
+            return "Desconhecido";
+
+        var ua = userAgent.ToLowerInvariant();
+        if (ua.Contains("windows")) return "Windows";
+        if (ua.Contains("macintosh") || ua.Contains("mac os")) return "macOS";
+        if (ua.Contains("linux")) return "Linux";
+        if (ua.Contains("android")) return "Android";
+        if (ua.Contains("iphone") || ua.Contains("ipad")) return "iOS";
+        return "Outro";
     }
 }

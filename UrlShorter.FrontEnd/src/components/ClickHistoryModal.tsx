@@ -1,5 +1,4 @@
 import type { ClickLog } from '../services/url.service'
-import { parseUserAgent } from '../utils/userAgent'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface ClickHistoryModalProps {
@@ -56,14 +55,15 @@ export default function ClickHistoryModal({
                                 <tbody className="divide-y divide-hairline/40 text-body">
                                     {clicks && clicks.length > 0 ? (
                                         clicks.map((click, i) => {
-                                            const { browser, os } = parseUserAgent(click.userAgent)
+                                            const browser = click.browser || 'Desconhecido'
+                                            const os = click.operatingSystem || 'Desconhecido'
                                             return (
                                                 <tr key={i} className="hover:bg-surface-soft transition-colors">
                                                     <td className="p-3 text-mono">
                                                         {new Date(click.occurredAt).toLocaleString('pt-BR')}
                                                     </td>
                                                     <td className="p-3 text-mono">{click.ipAddress || '—'}</td>
-                                                    <td className="p-3 truncate max-w-[200px]" title={click.userAgent}>
+                                                    <td className="p-3 truncate max-w-[200px]">
                                                         {browser} no {os}
                                                     </td>
                                                 </tr>

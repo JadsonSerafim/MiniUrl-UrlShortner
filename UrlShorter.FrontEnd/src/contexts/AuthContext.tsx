@@ -11,12 +11,18 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType | null>(null)
 
+interface StoredUserData {
+  id: string
+  name: string
+}
+
 function getInitialAuthState(): User | null {
   const storedUser = localStorage.getItem('user')
 
   if (storedUser) {
     try {
-      return JSON.parse(storedUser) as User
+      const parsed = JSON.parse(storedUser) as StoredUserData
+      return { id: parsed.id, name: parsed.name, email: '' }
     } catch (e) {
       console.error('Erro ao recuperar usuário do localStorage:', e)
       localStorage.removeItem('user')
@@ -29,13 +35,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => getInitialAuthState())
 
   const login = useCallback((userDetails: User) => {
-    localStorage.setItem('user', JSON.stringify(userDetails))
+    const storedData: StoredUserData = { id: userDetails.id, name: userDetails.name }
+    localStorage.setItem('user', JSON.stringify(storedData))
     setUser(userDetails)
   }, [])
 
   const logout = useCallback(async () => {
     try {
-      // Chama a API para limpar o cookie HttpOnly
       await api.post('/users/logout')
     } catch (error) {
       console.error('Erro ao fazer logout na API:', error)
