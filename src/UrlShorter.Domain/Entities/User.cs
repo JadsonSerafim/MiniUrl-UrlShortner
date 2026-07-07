@@ -15,6 +15,8 @@ public sealed class User : Entity
     public string? RefreshToken { get; private set; }
     public DateTime? RefreshTokenExpiryTime { get; private set; }
 
+    public DateTime? ConsentGivenAt { get; private set; }
+
     private User() 
     {
         Email = null!;
@@ -29,12 +31,14 @@ public sealed class User : Entity
         Password = password;
     }
 
-    public static Result<User> Create(Email email, string name, Password password)
+    public static Result<User> Create(Email email, string name, Password password, DateTime? consentGivenAt = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             return ErrorsUser.NameEmpty;
 
-        return new User(email, name, password);
+        var user = new User(email, name, password);
+        user.ConsentGivenAt = consentGivenAt;
+        return user;
     }
 
     public void UpdateName(string newName)
@@ -89,6 +93,17 @@ public sealed class User : Entity
     {
         RefreshToken = null;
         RefreshTokenExpiryTime = null;
+        Update();
+    }
+
+    public void AnonymizePersonalData(Email anonymizedEmail, Password anonymizedPassword)
+    {
+        Name = "Usuario removido";
+        Email = anonymizedEmail;
+        Password = anonymizedPassword;
+        RefreshToken = null;
+        RefreshTokenExpiryTime = null;
+        ConsentGivenAt = null;
         Update();
     }
 }

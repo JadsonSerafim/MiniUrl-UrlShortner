@@ -1,6 +1,9 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UrlShorter.Application.UseCases.Users.Commands.CreateUser;
+using UrlShorter.Application.UseCases.Users.Commands.DeleteAccount;
+using UrlShorter.Application.UseCases.Users.Commands.ExportUserData;
 using UrlShorter.Application.UseCases.Users.Commands.ForgotPassword;
 using UrlShorter.Application.UseCases.Users.Commands.Login;
 using UrlShorter.Application.UseCases.Users.Commands.RefreshToken;
@@ -101,6 +104,41 @@ public class UsersController : ApiController
     {
         var result = await _sender.Send(command);
 
+        return ProcessResult(result);
+    }
+
+    [Authorize]
+    [HttpDelete("me")]
+    public async Task<IActionResult> DeleteAccount()
+    {
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _sender.Send(new DeleteAccountCommand(userId.Value));
+
+        if (result.IsSuccess)
+        {
+            Response.Cookies.Delete("accessToken");
+            Response.Cookies.Delete("refreshToken");
+        }
+
+        return ProcessResult(result);
+    }
+
+    [Authorize]
+    [HttpGet("me/data")]
+    public async Task<IActionResult> ExportUserData()
+    {
+        var userId = GetUserId();
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _sender.Send(new ExportUserDataCommand(userId.Value));
         return ProcessResult(result);
     }
 

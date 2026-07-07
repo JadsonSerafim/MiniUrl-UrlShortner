@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
@@ -16,10 +16,11 @@ export function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [serverError, setServerError] = useTemporaryState<string | undefined>(undefined, 4000)
 
   const mutation = useMutation({
-    mutationFn: () => registerUser({ name, email, password }),
+    mutationFn: () => registerUser({ name, email, password, acceptedTerms }),
 
     onSuccess: () => {
       navigate('/login', { replace: true })
@@ -51,6 +52,10 @@ export function Register() {
     }
     if (password.length < 6) {
       setServerError('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+    if (!acceptedTerms) {
+      setServerError('Voce precisa aceitar os Termos de Uso e a Politica de Privacidade.')
       return
     }
 
@@ -93,6 +98,26 @@ export function Register() {
       footerText="Já tem conta?"
       footerLink="/login"
       footerLinkText="Entrar"
-    />
+    >
+      <label className="flex items-start gap-3 cursor-pointer group">
+        <input
+          type="checkbox"
+          checked={acceptedTerms}
+          onChange={(e) => setAcceptedTerms(e.target.checked)}
+          className="mt-0.5 h-4 w-4 rounded border-hairline text-primary focus:ring-primary/30 cursor-pointer"
+        />
+        <span className="text-xs text-muted leading-relaxed group-hover:text-body transition-colors">
+          Li e aceito os{' '}
+          <Link to="/terms" target="_blank" className="text-primary hover:underline font-medium">
+            Termos de Uso
+          </Link>{' '}
+          e a{' '}
+          <Link to="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+            Politica de Privacidade
+          </Link>
+          .
+        </span>
+      </label>
+    </AuthForm>
   )
 }

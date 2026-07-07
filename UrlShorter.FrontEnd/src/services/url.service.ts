@@ -15,7 +15,8 @@ export interface ApiShortenedUrl {
 }
 export interface ClickLog {
   ipAddress: string
-  userAgent?: string
+  browser?: string
+  operatingSystem?: string
   occurredAt: string
 }
 export interface UrlAnalytics {

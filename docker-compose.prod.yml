@@ -15,6 +15,8 @@ services:
       - Email__SmtpUser=${EMAIL_SMTP_USER}
       - Email__SmtpPass=${EMAIL_SMTP_PASS}
       - Email__FromAddress=${EMAIL_FROM_ADDRESS}
+      - DataCleanup__ClickLogRetentionDays=${DATA_CLEANUP_CLICK_LOG_RETENTION_DAYS}
+      - DataCleanup__ExpiredUrlRetentionDays=${DATA_CLEANUP_EXPIRED_URL_RETENTION_DAYS}
     networks:
       - vps-network
     expose:

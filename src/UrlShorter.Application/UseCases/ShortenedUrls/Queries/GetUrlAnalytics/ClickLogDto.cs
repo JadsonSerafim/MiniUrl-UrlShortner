@@ -2,6 +2,7 @@ namespace UrlShorter.Application.UseCases.ShortenedUrls.Queries.GetUrlAnalytics;
 
 public record ClickLogDto(
     string IpAddress,
-    string? UserAgent,
+    string? Browser,
+    string? OperatingSystem,
     DateTime OccurredAt
 );

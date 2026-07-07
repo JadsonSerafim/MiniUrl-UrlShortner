@@ -41,3 +41,39 @@ export async function forgotPassword(payload: ForgotPasswordRequest): Promise<vo
 export async function resetPassword(payload: ResetPasswordRequest): Promise<void> {
   await api.post('/users/reset-password', payload)
 }
+
+/**
+ * GET /api/users/me/data
+ * Exporta todos os dados do usuário autenticado.
+ */
+export async function exportUserData(): Promise<UserDataExport> {
+  const { data } = await api.get<UserDataExport>('/users/me/data')
+  return data
+}
+
+/**
+ * DELETE /api/users/me
+ * Exclui a conta do usuário autenticado.
+ */
+export async function deleteAccount(): Promise<void> {
+  await api.delete('/users/me')
+}
+
+export interface UserDataExport {
+  user: {
+    id: string
+    name: string
+    email: string
+    createdAt: string
+    consentGivenAt: string | null
+  }
+  urls: Array<{
+    shortCode: string
+    originalUrl: string
+    name: string | null
+    clickCount: number
+    expiresAt: string
+    createdAt: string
+  }>
+  exportedAt: string
+}

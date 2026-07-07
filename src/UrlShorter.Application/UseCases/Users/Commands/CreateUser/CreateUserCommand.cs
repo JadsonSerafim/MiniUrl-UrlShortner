@@ -4,4 +4,4 @@ using UrlShorter.Domain.Entities;
 
 namespace UrlShorter.Application.UseCases.Users.Commands.CreateUser;
 
-public record CreateUserCommand(string Name, string Email, string Password) : IRequest<Result<CreateUserResponse>>;
+public record CreateUserCommand(string Name, string Email, string Password, bool AcceptedTerms) : IRequest<Result<CreateUserResponse>>;

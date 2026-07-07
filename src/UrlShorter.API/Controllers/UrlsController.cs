@@ -81,19 +81,33 @@ public class UrlsController : ApiController
         return ProcessResult(result);
     }
 
+    [Authorize]
     [HttpGet("user/{userId:guid}")]
     public async Task<IActionResult> GetUserUrls([FromRoute] Guid userId, CancellationToken cancellationToken)
     {
+        var currentUserId = GetUserId();
+        if (currentUserId == null || currentUserId.Value != userId)
+        {
+            return Unauthorized();
+        }
+
         var query = new GetAllUserUrlsQuery(userId);
         return ProcessResult(await _sender.Send(query, cancellationToken));
     }
 
+    [Authorize]
     [HttpGet("{shortCode}/analytics")]
     public async Task<IActionResult> GetUrlAnalytics(
         [FromRoute] string shortCode,
         [FromQuery] Guid userId,
         CancellationToken cancellationToken)
     {
+        var currentUserId = GetUserId();
+        if (currentUserId == null || currentUserId.Value != userId)
+        {
+            return Unauthorized();
+        }
+
         var query = new GetUrlAnalyticsQuery(shortCode, userId);
         return ProcessResult(await _sender.Send(query, cancellationToken));
     }
