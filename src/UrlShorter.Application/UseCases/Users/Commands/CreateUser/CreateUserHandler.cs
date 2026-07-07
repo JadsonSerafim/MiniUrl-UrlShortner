@@ -22,6 +22,10 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Creat
 
     public async Task<Result<CreateUserResponse>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
     {
+        if (!request.AcceptedTerms)
+        {
+            return ErrorsUser.ConsentRequired;
+        }
 
         var isEmailUnique = await _userRepository.IsEmailUniqueAsync(request.Email, cancellationToken);
         if (!isEmailUnique)
@@ -41,7 +45,7 @@ public class CreateUserHandler : IRequestHandler<CreateUserCommand, Result<Creat
             return passwordResult.Error;
         }
 
-        var userResult = User.Create(emailResult.Value, request.Name, passwordResult.Value);
+        var userResult = User.Create(emailResult.Value, request.Name, passwordResult.Value, DateTime.UtcNow);
         if (userResult.IsFailure) return userResult.Error;
 
         var user = userResult.Value;

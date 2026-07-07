@@ -30,7 +30,7 @@ public class CreateUserHandlerTests
     public async Task Handle_ShouldReturnSuccess_WhenDataIsValid()
     {
         // Arrange
-        var command = new CreateUserCommand("Jadson", "test@example.com", "Password123!");
+        var command = new CreateUserCommand("Jadson", "test@example.com", "Password123!", true);
         _repoMock.Setup(r => r.IsEmailUniqueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -47,7 +47,7 @@ public class CreateUserHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenEmailIsNotUnique()
     {
         // Arrange
-        var command = new CreateUserCommand("Jadson", "duplicate@example.com", "Password123!");
+        var command = new CreateUserCommand("Jadson", "duplicate@example.com", "Password123!", true);
         _repoMock.Setup(r => r.IsEmailUniqueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
@@ -63,7 +63,7 @@ public class CreateUserHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenEmailIsInvalid()
     {
         // Arrange
-        var command = new CreateUserCommand("Jadson", "invalid-email", "Password123!");
+        var command = new CreateUserCommand("Jadson", "invalid-email", "Password123!", true);
         _repoMock.Setup(r => r.IsEmailUniqueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -79,7 +79,7 @@ public class CreateUserHandlerTests
     public async Task Handle_ShouldReturnFailure_WhenPasswordIsInvalid()
     {
         // Arrange
-        var command = new CreateUserCommand("Jadson", "test@example.com", "weak");
+        var command = new CreateUserCommand("Jadson", "test@example.com", "weak", true);
         _repoMock.Setup(r => r.IsEmailUniqueAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
@@ -89,5 +89,19 @@ public class CreateUserHandlerTests
         // Assert
         result.IsFailure.Should().BeTrue();
         result.Error.Should().Be(ErrorsPassword.InvalidLength);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldReturnFailure_WhenConsentNotGiven()
+    {
+        // Arrange
+        var command = new CreateUserCommand("Jadson", "test@example.com", "Password123!", false);
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsFailure.Should().BeTrue();
+        result.Error.Should().Be(ErrorsUser.ConsentRequired);
     }
 }

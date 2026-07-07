@@ -29,4 +29,8 @@ public static class ErrorsUser
     public static readonly Error TokenInvalidOrExpired = Error.Unauthorized(
         "Token.Invalid",
         "Refresh token inválido ou expirado.");
+
+    public static readonly Error ConsentRequired = Error.Validation(
+        "User.ConsentRequired",
+        "Você precisa aceitar os Termos de Uso e a Política de Privacidade.");
 }

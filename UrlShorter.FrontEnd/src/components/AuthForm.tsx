@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import Input from './Input'
 import Button from './Button'
@@ -24,6 +25,7 @@ interface AuthFormProps {
   footerLinkText?: string
   extraLink?: string
   extraLinkText?: string
+  children?: ReactNode
 }
 
 export function AuthForm({
@@ -38,6 +40,7 @@ export function AuthForm({
   footerLinkText,
   extraLink,
   extraLinkText,
+  children,
 }: AuthFormProps) {
   return (
     <Card>
@@ -75,6 +78,8 @@ export function AuthForm({
             </Link>
           </div>
         )}
+
+        {children}
 
         {error && (
           <p className="text-sm text-red-400 text-center animate-fade-in" role="alert">
