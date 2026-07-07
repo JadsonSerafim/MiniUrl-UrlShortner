@@ -44,6 +44,7 @@ public static class DependencyInjection
         services.Configure<UrlSafetySettings>(configuration.GetSection(UrlSafetySettings.SectionName));
         services.Configure<WhoisSettings>(configuration.GetSection(WhoisSettings.SectionName));
         services.Configure<BlockedShortenersSettings>(configuration.GetSection(BlockedShortenersSettings.SectionName));
+        services.Configure<DataCleanupSettings>(configuration.GetSection(DataCleanupSettings.SectionName));
 
         services.AddHttpClient("GoogleSafeBrowsing", client =>
         {
@@ -65,6 +66,7 @@ public static class DependencyInjection
         });
 
         services.AddHostedService<ClickLogBackgroundServiceBatched>();
+        services.AddHostedService<DataCleanupService>();
         
         var sqlitePath = configuration["FallbackSqlitePath"] ?? "Data Source=fallback_clicks.db";
         services.AddSingleton(new ClickLogFallbackRepository(sqlitePath));
