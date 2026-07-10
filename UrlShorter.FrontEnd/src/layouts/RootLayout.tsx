@@ -226,6 +226,12 @@ export function RootLayout() {
             <Link to="/sobre" className="hover:text-ink transition-colors">
               Sobre o Projeto
             </Link>
+            <Link to="/privacy" className="hover:text-ink transition-colors">
+              Privacidade
+            </Link>
+            <Link to="/terms" className="hover:text-ink transition-colors">
+              Termos
+            </Link>
             <a
               href="https://www.linkedin.com/in/jadson-serafim/"
               target="_blank"
