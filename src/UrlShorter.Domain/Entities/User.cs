@@ -12,6 +12,8 @@ public sealed class User : Entity
 
     public Password Password { get; private set; }
 
+    public DateTime? ConsentGivenAt { get; private set; }
+
     public string? RefreshToken { get; private set; }
     public DateTime? RefreshTokenExpiryTime { get; private set; }
 
