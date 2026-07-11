@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
       - ConnectionStrings__DefaultConnection=Host=shared-db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - ConnectionStrings__Redis=${REDIS_CONNECTION}
+      - ConnectionStrings__Redis=${REDIS_CONNECTION},password=${REDIS_PASSWORD}
       - Jwt__Secret=${JWT_SECRET}
       - FrontendUrl=${FRONTEND_URL}
       - UrlSafety__GoogleSafeBrowsing__ApiKey=${GOOGLE_SAFE_BROWSING_API_KEY}
@@ -15,6 +15,8 @@ services:
       - Email__SmtpUser=${EMAIL_SMTP_USER}
       - Email__SmtpPass=${EMAIL_SMTP_PASS}
       - Email__FromAddress=${EMAIL_FROM_ADDRESS}
+      - DataCleanup__ClickLogRetentionDays=${DATA_CLEANUP_CLICK_LOG_RETENTION_DAYS}
+      - DataCleanup__ExpiredUrlRetentionDays=${DATA_CLEANUP_EXPIRED_URL_RETENTION_DAYS}
     networks:
       - vps-network
     expose:
@@ -28,6 +30,9 @@ services:
       - vps-network
     expose:
       - "80"
+    volumes:
+      - ./images/orangepi.jpg:/usr/share/nginx/html/orangepi.jpg:ro
+      - ./images/orangepi2.jpg:/usr/share/nginx/html/orangepi2.jpg:ro
 
 networks:
   vps-network:

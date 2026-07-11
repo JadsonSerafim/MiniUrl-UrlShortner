@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using UrlShorter.API.Middlewares;
 using UrlShorter.Application;
 using UrlShorter.Infrastructure;
+using UrlShorter.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,12 @@ app.UseMiddleware<GuestRateLimitMiddleware>();
 app.MapHealthChecks("/health");
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {
