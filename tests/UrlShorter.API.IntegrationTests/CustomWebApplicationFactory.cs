@@ -21,7 +21,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Thoroughly remove existing DB context and options
             var descriptors = services.Where(d => 
                 d.ServiceType == typeof(AppDbContext) || 
                 d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
@@ -33,13 +32,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
 
-            // Add In-Memory DB
             services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseInMemoryDatabase("IntegrationTestsDb");
             });
 
-            // Replace external services with mocks
             services.RemoveAll<IDomainSafetyService>();
             services.AddScoped(_ => DomainSafetyMock.Object);
 
@@ -49,11 +46,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll<ICacheService>();
             services.AddScoped(_ => CacheMock.Object);
 
-            // Ensure fresh MemoryCache for rate limiting
             services.RemoveAll<IMemoryCache>();
             services.AddMemoryCache();
 
-            // Mock default behaviors
             UrlSafetyMock.Setup(s => s.CheckUrlSafetyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(UrlSafetyStatus.Safe);
             
