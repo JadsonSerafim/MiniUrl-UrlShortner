@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Moq;
 using UrlShorter.Application.Interfaces;
 using UrlShorter.Infrastructure.Persistence;
@@ -21,11 +22,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Thoroughly remove existing DB context and options
-            var descriptors = services.Where(d => 
-                d.ServiceType == typeof(AppDbContext) || 
+            var descriptors = services.Where(d =>
+                d.ServiceType == typeof(AppDbContext) ||
                 d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
-                d.ServiceType.FullName?.StartsWith("Microsoft.EntityFrameworkCore") == true
+                d.ServiceType.FullName?.StartsWith("Microsoft.EntityFrameworkCore") == true ||
+                d.ServiceType.FullName?.Contains("StackExchange.Redis") == true ||
+                d.ServiceType == typeof(IHealthCheck) ||
+                d.ServiceType.FullName?.StartsWith("Microsoft.Extensions.Diagnostics.HealthChecks") == true
             ).ToList();
 
             foreach (var descriptor in descriptors)
@@ -56,10 +59,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             // Mock default behaviors
             UrlSafetyMock.Setup(s => s.CheckUrlSafetyAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(UrlSafetyStatus.Safe);
-            
+
             DomainSafetyMock.Setup(d => d.IsDomainTooYoungAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            
+
             DomainSafetyMock.Setup(d => d.ShouldShowInterstitialAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
         });
