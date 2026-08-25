@@ -118,7 +118,7 @@ export function RootLayout() {
             </div>
 
             {menuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-56 rounded-xl border border-hairline bg-canvas/95 backdrop-blur-md shadow-soft py-2 animate-fade-in sm:hidden">
+              <div className="absolute top-full right-0 mt-2 w-56 rounded-xl border border-hairline bg-surface shadow-soft py-2 animate-fade-in sm:hidden">
                 <Link
                   to="/sobre"
                   onClick={() => setMenuOpen(false)}
@@ -219,7 +219,7 @@ export function RootLayout() {
             </div>
             <span className="text-xs text-muted">© {new Date().getFullYear()} — Projeto de Portfólio.</span>
           </div>
-          <div className="flex items-center gap-6 text-sm text-body">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-body sm:gap-x-6 sm:justify-start">
             <Link to={isAuthenticated ? "/dashboard" : "/"} className="hover:text-ink transition-colors">
               Início
             </Link>
